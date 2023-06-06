@@ -1,0 +1,215 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne&display=swap');
+
+#wpadminbar {
+    visibility: hidden;
+}
+
+.site * {
+    font-family: 'Syne', sans-serif !important;
+}
+
+.site a, .site a:hover {
+    text-decoration: none !important;
+    background-color: transparent !important;
+    color: black !important;
+    font-size: 16px !important;
+    font-weight: 400;
+    padding: unset !important;
+}
+
+.site a:hover {
+    font-weight: 700;
+}
+
+/* HEADER */
+
+.site-header {
+    max-width: 1440px !important;
+    min-height: 60px;
+    height: 80px;
+    padding: 0 !important;
+}
+
+/* HEADER LOGO */
+
+.site-branding {
+    width: 50%;
+    margin: 0 !important;
+    display: flex;
+    align-items: center;
+    gap: 1.5%;
+    padding-left: 2.5%;
+}
+
+.site-logo {
+    max-width: 300px !important;
+    width: 72.5% !important;
+}
+
+.custom-logo {
+    width: 100% !important;
+}
+
+.text-logo {
+    font-size: 12px;
+    color: var(--planty-tertiary);
+    font-weight: 600;
+}
+
+/* HEADER NAVIGATION */
+
+.primary-navigation {
+    width: 50%;
+}
+
+.primary-menu-container {
+    margin: 0 !important;
+}
+
+.menu-wrapper {
+    justify-content: flex-end !important;
+    column-gap: 7%;
+}
+
+.menu-item {
+    height: auto !important;
+    margin: auto 0 !important;
+}
+
+.menu-item-45, .menu-item-45 a {
+    margin: 0 !important;
+}
+
+.menu-item a {
+    padding: 0 !important;
+}
+
+.menu-item-45 {
+    width: 37% !important;
+    max-width: 236px;
+}
+
+.menu-item-45 a {
+    width: 100%;
+    text-align: center;
+    vertical-align: middle;
+    color: white !important;
+    background-color: var(--planty-secondary) !important;
+}
+
+.menu-item-45 a:hover {
+    color: white !important;
+    background-color: var(--planty-secondary-hover) !important;
+}
+
+/* HEADER MEDIA */
+
+@media only screen and (min-width: 801px) {
+    .menu-item-45, .menu-item-45 a {
+        height: 80px !important;
+        line-height: 80px;
+    }
+}
+
+@media only screen and (max-width: 800px) {
+    .site-header {
+        height: 60px;
+    }
+
+    .site-branding, .primary-navigation, .primary-menu-container, .menu-wrapper, .menu-item-45, .menu-item-45 a {
+        height: 100% !important;
+    }
+
+    .menu-item a {
+        font-size: 2vw !important;
+    }
+
+    .menu-item-45 a {
+        line-height: 60px;
+    }
+
+    .text-logo {
+        font-size: 1.5vw !important;
+    }
+}
+
+@media only screen and (max-width: 481px) {
+    .site-header {
+        justify-content: space-between;
+    }
+    .custom-logo {
+        max-width: 300px !important;
+        max-height: 100px !important;
+    }
+
+    .site-logo, .menu-button-container, .primary-navigation {
+        position: initial !important;
+    }
+
+    .button {
+        margin: 0 !important;
+    }
+
+    .primary-navigation {
+        width: 100px !important;
+    }
+
+    .menu-button-container {
+        padding: 0 !important;
+        margin-top: 10px;
+    }
+
+    .primary-menu-container {
+        margin-top: 60px !important;
+    }
+
+    .site-branding {
+        width: 68% !important;
+    }
+
+    .site-logo {
+        padding: 0 !important;
+        margin: 15px 0 !important;
+        height: auto;
+        display: unset !important;
+        width: 85% !important;
+    }
+
+    .custom-logo {
+        width: 100% !important;
+    }
+
+    .primary-navigation-open .primary-navigation > div > .menu-wrapper li {
+        max-width: 100% !important;
+        width: 100% !important;
+        height: 33% !important;
+    }
+
+    .primary-navigation-open .primary-navigation > div > .menu-wrapper {
+        padding-bottom: 0 !important;
+    }
+
+    .primary-navigation-open .primary-navigation > .primary-menu-container {
+        padding-top: var(--global--spacing-horizontal) !important;
+        height: 270px !important;
+    }
+
+    .primary-navigation-open .primary-navigation > div > .menu-wrapper > .menu-item a {
+        font-size: 16px !important;
+    }
+
+    .primary-navigation-open .primary-navigation > div > .menu-wrapper > .menu-item:not(.menu-item-45) a {
+        width: fit-content;
+        margin: 27.6px auto !important;
+    }
+
+    .primary-navigation-open .primary-navigation > div > .menu-wrapper > .menu-item-45 a {
+        line-height: 71.27px !important;
+    }
+}
+
+/* FOOTER */
+
+.planty-footer {
+    text-align: center;
+}
