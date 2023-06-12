@@ -18,20 +18,39 @@ function seopress_get_docs_links()
             'blog'             => 'https://www.seopress.org/fr/blog/' . $utm,
             'downloads'        => 'https://www.seopress.org/fr/mon-compte/mes-telechargements/' . $utm,
             'support'          => 'https://www.seopress.org/fr/support/' . $utm,
+            'support-tickets'  => 'https://www.seopress.org/fr/mon-compte/vos-tickets/' . $utm,
+            'support-free'     => 'https://www.seopress.org/fr/support/seopress-free/' . $utm,
+            'support-pro'      => 'https://www.seopress.org/fr/support/seopress-pro/' . $utm,
+            'support-insights' => 'https://www.seopress.org/fr/support/seopress-insights/' . $utm,
             'guides'           => 'https://www.seopress.org/fr/support/guides/' . $utm,
             'faq'              => 'https://www.seopress.org/fr/support/faq/' . $utm,
             'insights'         => 'https://www.seopress.org/fr/extensions-seo-wordpress/seopress-insights/' . $utm2,
             'get_started'      => [
-                'installation'        => ['Installation de SEOPress' => 'https://www.seopress.org/fr/support/guides/debutez-avec-seopress/' . $utm],
-                'license'             => ['Activater votre clé de licence pour recevoir les mises à jours automatiques' => 'https://www.seopress.org/fr/support/guides/activer-votre-licence-seopress-pro-insights/' . $utm],
-                'wizard'              => ['Configurez SEOPress en 5 minutes' => 'https://youtu.be/uwgS5zTk0j0' . $utm],
-                'migration'           => ['Migrer vos métadonnées SEO depuis d\'autres extensions' => 'https://www.seopress.org/fr/solutions/migrer-vers-seopress/' . $utm],
-                'sitemaps'            => ['Favoriser l\'exploration de votre site WordPress par les robots des moteurs de recherche' => 'https://www.seopress.org/fr/support/guides/activer-le-sitemap-xml/' . $utm],
-                'content'             => ['Optimiser un contenu de A à Z avec SEOPress' => 'https://www.seopress.org/fr/support/tutoriels/optimisez-votre-article-wordpress-pour-un-mot-cle/' . $utm],
-                'analytics'           => ['Mesurez votre trafic avec Google Analytics' => 'https://www.seopress.org/fr/support/guides/debutez-avec-google-analytics/' . $utm],
-                'search_console'      => ['Ajouter votre site WordPress à l’index de Google' => 'https://www.seopress.org/fr/support/guides/ajouter-votre-site-a-google-search-console/' . $utm],
-                'social'              => ['Optimisez votre taux de clics sur les réseaux sociaux' => 'https://www.seopress.org/fr/support/guides/gerer-les-metas-facebook-open-graph-et-twitter-cards/' . $utm],
-                'ebooks'              => ['Ebooks gratuits pour apprendre le référencement' => 'https://www.seopress.org/fr/support/ebooks/' . $utm],
+                'installation' => [
+                    'ico' => 'ico-starter-guides',
+                    'title' => __('Pour débuter', 'wp-seopress'),
+                    'desc' => __('Prêt à booster votre SEO ? Débutez en quelques minutes avec SEOPress.','wp-seopress'),
+                    'link' => 'https://www.seopress.org/fr/support/guides/debutez-avec-seopress/' . $utm,
+                ],
+                'guides' => [
+                    'ico' => 'ico-guides',
+                    'title' => __('Guides', 'wp-seopress'),
+                    'desc' => __('Découvrez les bases du SEO, comment configurer nos produits pour en tirer tout le bénéfice.','wp-seopress'),
+                    'link' => 'https://www.seopress.org/fr/support/guides/' . $utm,
+                ],
+                'ebooks' => [
+                    'ico' => 'ico-ebooks',
+                    'title' => __('Ebooks', 'wp-seopress'),
+                    'desc' => __('Ebooks SEO gratuits pour améliorer votre classement, votre trafic, vos conversions et vos ventes.','wp-seopress'),
+                    'link' => 'https://www.seopress.org/fr/support/ebooks/' . $utm,
+                ],
+                'dev' => [
+                    'ico' => 'ico-hooks',
+                    'title' => __('Docs des développeurs', 'wp-seopress'),
+                    'desc' => __('Débloquez la puissance de SEOPress avec nos actions et filtres.','wp-seopress'),
+                    'link' => 'https://www.seopress.org/fr/support/hooks/' . $utm,
+                ],
+                'sitemaps' => [],
             ],
             'get_started_insights'      => [
                 'installation'          => ['Activer votre licence SEOPress PRO / Insights' => 'https://www.seopress.org/fr/support/guides/activer-votre-licence-seopress-pro-insights/' . $utm3],
@@ -45,10 +64,15 @@ function seopress_get_docs_links()
             'universal' => [
                 'introduction' => 'https://www.seopress.org/fr/fonctionnalites/integration-constructeurs-de-page/' . $utm,
             ],
+            'ai' => [
+                'introduction' => 'https://www.seopress.org/fr/fonctionnalites/openai/' . $utm,
+                'errors' => 'https://www.seopress.org/fr/support/guides/generez-vos-metadonnees-seo-avec-openai/' . $utm
+            ],
             'titles' => [
                 'thumbnail' => 'https://support.google.com/programmable-search/answer/1626955?hl=fr',
                 'wrong_meta' => 'https://www.seopress.org/fr/support/guides/google-utilise-une-balise-titre-meta-description-incorrecte-dans-les-resultats-de-recherche/' . $utm,
                 'alt_title' => 'https://developers.google.com/search/docs/appearance/site-names#content-guidelines' . $utm,
+                'manage' => 'https://www.seopress.org/fr/support/guides/gerez-vos-balises-titres-et-metas/' . $utm
             ],
             'sitemaps' => [
                 'error' => [
@@ -65,6 +89,7 @@ function seopress_get_docs_links()
                 'og' => 'https://www.seopress.org/fr/support/guides/gerer-les-metas-facebook-open-graph-et-twitter-cards/' . $utm,
             ],
             'analytics' => [
+                'quick_start'       => 'https://www.seopress.org/fr/support/guides/debutez-avec-google-analytics/' . $utm,
                 'connect'           => 'https://www.seopress.org/fr/support/guides/connectez-votre-site-wordpress-a-google-analytics/' . $utm,
                 'custom_dimensions' => 'https://www.seopress.org/fr/support/guides/creer-des-dimensions-personnalisees-dans-google-analytics/' . $utm,
                 'custom_tracking'   => 'https://www.seopress.org/fr/support/hooks/ajouter-votre-code-de-suivi-personnalise-avec-le-consentement-utilisateur/' . $utm,
@@ -90,6 +115,9 @@ function seopress_get_docs_links()
                     'project' => 'https://www.seopress.org/fr/support/guides/trouver-mon-id-de-project-microsoft-clarity/' . $utm,
                 ]
             ],
+            'advanced' => [
+                'imageseo' => 'https://www.seopress.org/fr/support/guides/optimiser-une-image-pour-le-referencement/' . $utm,
+            ],
             'compatibility' => [
                 'automatic' => 'https://www.seopress.org/fr/support/guides/generez-automatiquement-les-metas-descriptions-depuis-divi-oxygen-builder-fusion-builder/' . $utm,
             ],
@@ -106,11 +134,13 @@ function seopress_get_docs_links()
             'bot' => 'https://www.seopress.org/fr/support/guides/detecter-les-liens-casses-dans-vos-contenus/' . $utm,
             'lb'  => [
                 'eat' => 'https://www.seopress.org/fr/newsroom/reportage/optimiser-votre-site-wordpress-pour-google-eat/' . $utm,
+                'ebook' => 'https://www.seopress.org/fr/support/ebooks/ameliorer-le-positionnement-de-votre-site-wordpress-grace-au-seo-local/' . $utm,
             ],
             'robots' => [
                 'file' => 'https://www.seopress.org/fr/support/guides/editer-votre-fichier-robots-txt/' . $utm,
             ],
             'breadcrumbs' => [
+                'get_started' => 'https://www.seopress.org/fr/support/guides/activer-fil-dariane/' . $utm,
                 'sep' => 'https://www.seopress.org/fr/support/hooks/filtrer-le-separateur-du-fil-dariane/' . $utm,
                 'i18n' => 'https://www.seopress.org/fr/support/guides/traduire-les-options-de-seopress-avec-wpml-polylang/' . $utm,
             ],
@@ -118,6 +148,9 @@ function seopress_get_docs_links()
                 'enable' => 'https://www.seopress.org/fr/support/guides/activer-les-redirections-301-et-la-surveillance-des-404/' . $utm,
                 'query'  => 'https://www.seopress.org/fr/support/guides/nettoyez-vos-erreurs-404-a-laide-dune-requete-mysql/' . $utm,
                 'regex'  => 'https://www.seopress.org/fr/support/guides/activer-les-redirections-301-et-la-surveillance-des-404/' . $utm . '#expressions-regulieres',
+            ],
+            'woocommerce' => [
+                'ebook' => 'https://www.seopress.org/fr/support/ebooks/woocommerce-seo-guide-ultime/' . $utm,
             ],
             'schemas' => [
                 'ebook'   => 'https://www.seopress.org/fr/support/ebooks/types-de-donnees-structurees-de-google-schemas/' . $utm,
@@ -140,12 +173,19 @@ function seopress_get_docs_links()
                 'google' => 'https://www.seopress.org/fr/support/guides/comment-utiliser-lapi-google-inspection-durl-avec-seopress-pro/' . $utm,
             ],
             'search_console_api' => [
-                'google' => 'https://www.seopress.org/fr/support/guides/google-search-console-avec-seopress/' . $utm,
+                'google' => 'https://www.seopress.org/fr/support/guides/ajouter-votre-site-a-google-search-console/' . $utm,
+                'metrics' => 'https://www.seopress.org/fr/support/guides/comment-utiliser-api-google-search-console-avec-seopress-pro/' . $utm,
                 'api' => 'https://console.cloud.google.com/apis/library/searchconsole.googleapis.com?hl=fr',
             ],
             'tools' => [
                 'csv_import' => 'https://www.seopress.org/fr/support/guides/importer-metadonnees-csv-seopress-pro/' . $utm,
                 'csv_export' => 'https://www.seopress.org/fr/support/guides/exporter-vos-metadonnees-vers-un-fichier-csv-avec-seopress-pro/' . $utm,
+            ],
+            'google_news' => [
+                'get_started' => 'https://www.seopress.org/fr/support/guides/activer-le-plan-de-site-xml-google-news/' . $utm,
+            ],
+            'rss' => [
+                'get_started' => 'https://www.seopress.org/fr/support/guides/gerez-vos-flux-rss-wordpress/'. $utm,
             ],
             'license' => [
                 'account'        => 'https://www.seopress.org/fr/mon-compte/' . $utm,
@@ -167,20 +207,39 @@ function seopress_get_docs_links()
             'blog'             => 'https://www.seopress.org/newsroom/' . $utm,
             'downloads'        => 'https://www.seopress.org/account/my-downloads/' . $utm,
             'support'          => 'https://www.seopress.org/support/' . $utm,
+            'support-free'     => 'https://www.seopress.org/support/seopress-free/' . $utm,
+            'support-pro'      => 'https://www.seopress.org/support/seopress-pro/' . $utm,
+            'support-insights' => 'https://www.seopress.org/support/seopress-insights/' . $utm,
+            'support-tickets'  => 'https://www.seopress.org/account/your-tickets/' . $utm,
             'guides'           => 'https://www.seopress.org/support/guides/' . $utm,
             'faq'              => 'https://www.seopress.org/support/faq/' . $utm,
             'insights'         => 'https://www.seopress.org/wordpress-seo-plugins/insights/' . $utm2,
             'get_started'      => [
-                'installation'        => [__('Installation of SEOPress', 'wp-seopress') => 'https://www.seopress.org/support/guides/get-started-seopress/' . $utm],
-                'license'             => [__('Activate your license key to receive automatic updates', 'wp-seopress') => 'https://www.seopress.org/support/guides/activate-seopress-pro-license/' . $utm],
-                'wizard'              => [__('Configure SEOPress in 5 minutes', 'wp-seopress') => 'https://youtu.be/uwgS5zTk0j0' . $utm],
-                'migration'           => [__('Migrate your SEO metadata from other plugins', 'wp-seopress') => 'https://www.seopress.org/solutions/migrate-from/' . $utm],
-                'sitemaps'            => [__('Promote the exploration of your WordPress site by search engine robots', 'wp-seopress') => 'https://www.seopress.org/support/guides/enable-xml-sitemaps/' . $utm],
-                'content'             => [__('Optimize content from A to Z with SEOPress', 'wp-seopress') => 'https://www.seopress.org/support/tutorials/optimize-wordpress-posts-for-a-keyword/' . $utm],
-                'analytics'           => [__('Measure your traffic with Google Analytics', 'wp-seopress') => 'https://www.seopress.org/support/guides/google-analytics/' . $utm],
-                'search_console'      => [__('Add your WordPress site to Google’s index', 'wp-seopress') => 'https://www.seopress.org/support/guides/google-search-console/' . $utm],
-                'social'              => [__('Optimize your click-through rate on social networks', 'wp-seopress') => 'https://www.seopress.org/support/guides/manage-facebook-open-graph-and-twitter-cards-metas/' . $utm],
-                'ebooks'              => [__('Free ebooks to learn SEO', 'wp-seopress') => 'https://www.seopress.org/support/ebooks/' . $utm],
+                'installation'        => [
+                    'ico' => 'ico-starter-guides',
+                    'title' => __('Starter guides', 'wp-seopress'),
+                    'desc' => __('Ready to boost your SEO? Get started in minutes with SEOPress.','wp-seopress'),
+                    'link' => 'https://www.seopress.org/support/guides/get-started-seopress/' . $utm,
+                ],
+                'guides' => [
+                    'ico' => 'ico-guides',
+                    'title' => __('Guides', 'wp-seopress'),
+                    'desc' => __('Discover the basics of SEO, how to configure our products to get the most out of them.','wp-seopress'),
+                    'link' => 'https://www.seopress.org/support/guides/' . $utm,
+                ],
+                'ebooks' => [
+                    'ico' => 'ico-ebooks',
+                    'title' => __('Ebooks', 'wp-seopress'),
+                    'desc' => __('Free SEO ebooks to improve your rankings, traffic, conversions and sales.','wp-seopress'),
+                    'link' => 'https://www.seopress.org/support/ebooks/' . $utm,
+                ],
+                'dev' => [
+                    'ico' => 'ico-hooks',
+                    'title' => __('Developer Docs', 'wp-seopress'),
+                    'desc' => __('Unlock the power of SEOPress with our actions and filters.','wp-seopress'),
+                    'link' => 'https://www.seopress.org/support/hooks/' . $utm,
+                ],
+                'sitemaps' => [],
             ],
             'get_started_insights'      => [
                 'installation'          => [__('Activate your SEOPress Insights license', 'wp-seopress') => 'https://www.seopress.org/support/guides/activate-seopress-pro-license/' . $utm3],
@@ -194,10 +253,15 @@ function seopress_get_docs_links()
             'universal' => [
                 'introduction' => 'https://www.seopress.org/features/page-builders-integration/' . $utm,
             ],
+            'ai' => [
+                'introduction' => 'https://www.seopress.org/features/openai/' . $utm,
+                'errors' => 'https://www.seopress.org/support/guides/generate-your-seo-metadata-with-openai/' . $utm
+            ],
             'titles' => [
                 'thumbnail' => 'https://support.google.com/programmable-search/answer/1626955?hl=en',
                 'wrong_meta' => 'https://www.seopress.org/support/guides/google-uses-the-wrong-meta-title-meta-description-in-search-results/' . $utm,
                 'alt_title' => 'https://developers.google.com/search/docs/appearance/site-names#content-guidelines' . $utm,
+                'manage' => 'https://www.seopress.org/support/guides/manage-titles-meta-descriptions/' . $utm
             ],
             'sitemaps' => [
                 'error' => [
@@ -214,6 +278,7 @@ function seopress_get_docs_links()
                 'og' => 'https://www.seopress.org/support/guides/manage-facebook-open-graph-and-twitter-cards-metas/' . $utm,
             ],
             'analytics' => [
+                'quick_start'       => 'https://www.seopress.org/support/guides/google-analytics/' . $utm,
                 'connect'           => 'https://www.seopress.org/support/guides/connect-wordpress-site-google-analytics/' . $utm,
                 'custom_dimensions' => 'https://www.seopress.org/support/guides/create-custom-dimension-google-analytics/' . $utm,
                 'custom_tracking'   => 'https://www.seopress.org/support/hooks/add-custom-tracking-code-with-user-consent/' . $utm,
@@ -239,6 +304,9 @@ function seopress_get_docs_links()
                     'project' => 'https://www.seopress.org/support/guides/find-my-microsoft-clarity-project-id/' . $utm,
                 ]
             ],
+            'advanced' => [
+                'imageseo' => 'https://www.seopress.org/support/guides/optimize-an-image-for-seo/' . $utm,
+            ],
             'compatibility' => [
                 'automatic' => 'https://www.seopress.org/support/guides/generate-automatic-meta-description-from-page-builders/' . $utm,
             ],
@@ -255,11 +323,13 @@ function seopress_get_docs_links()
             'bot' => 'https://www.seopress.org/support/guides/detect-broken-links/' . $utm,
             'lb'  => [
                 'eat' => 'https://www.seopress.org/newsroom/featured-stories/optimizing-wordpress-sites-for-google-eat/' . $utm,
+                'ebook' => 'https://www.seopress.org/support/ebooks/improving-your-local-seo-using-wordpress/' . $utm,
             ],
             'robots' => [
                 'file' => 'https://www.seopress.org/support/guides/edit-robots-txt-file/' . $utm,
             ],
             'breadcrumbs' => [
+                'get_started' => 'https://www.seopress.org/support/guides/enable-breadcrumbs/' . $utm,
                 'sep' => 'https://www.seopress.org/support/hooks/filter-breadcrumbs-separator/' . $utm,
                 'i18n' => 'https://www.seopress.org/support/guides/translate-seopress-options-with-wpml-polylang/' . $utm,
             ],
@@ -267,6 +337,9 @@ function seopress_get_docs_links()
                 'enable' => 'https://www.seopress.org/support/guides/redirections/' . $utm,
                 'query'  => 'https://www.seopress.org/support/guides/delete-your-404-errors-with-a-mysql-query/' . $utm,
                 'regex'  => 'https://www.seopress.org/support/guides/redirections/' . $utm . '#regular-expressions',
+            ],
+            'woocommerce' => [
+                'ebook' => 'https://www.seopress.org/support/ebooks/woocommerce-seo-ultimate-guide/' . $utm,
             ],
             'schemas' => [
                 'ebook'   => 'https://www.seopress.org/support/ebooks/master-google-structured-data-types-schemas/' . $utm,
@@ -289,8 +362,15 @@ function seopress_get_docs_links()
                 'google' => 'https://www.seopress.org/support/guides/how-to-use-google-inspect-url-api-with-seopress-pro/' . $utm,
             ],
             'search_console_api' => [
-                'google' => 'https://www.seopress.org/support/guides/google-search-console-with-seopress/' . $utm,
+                'google' => 'https://www.seopress.org/support/guides/google-search-console/' . $utm,
+                'metrics' => 'https://www.seopress.org/support/guides/how-to-use-google-search-console-api-with-seopress-pro/' . $utm,
                 'api' => 'https://console.cloud.google.com/apis/library/searchconsole.googleapis.com?hl=en',
+            ],
+            'google_news' => [
+                'get_started' => 'https://www.seopress.org/support/guides/enable-google-news-xml-sitemap/' . $utm,
+            ],
+            'rss' => [
+                'get_started' => 'https://www.seopress.org/support/guides/manage-your-wordpress-rss-feeds/'. $utm,
             ],
             'tools' => [
                 'csv_import' => 'https://www.seopress.org/support/guides/import-metadata-from-a-csv-file-with-seopress-pro/' . $utm,

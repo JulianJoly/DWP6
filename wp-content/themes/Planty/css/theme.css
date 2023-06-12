@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Syne&display=swap');
 
-#wpadminbar {
-    visibility: hidden;
+#wpadminbar, .entry-header, .entry-footer {
+    display: none !important;
 }
 
 .site * {
@@ -19,6 +19,14 @@
 
 .site a:hover {
     font-weight: 700;
+}
+
+.site-main {
+    padding: 0 !important;
+}
+
+.entry-content {
+    margin: 0 !important;
 }
 
 /* HEADER */

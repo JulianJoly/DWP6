@@ -19,7 +19,7 @@
 	<?php get_template_part( 'template-parts/footer/footer-widgets' ); ?>
 
 	<footer id="colophon" class="planty-footer">
-		<a href="#">Mentions légales</a>
+		<a href="/Planty/">Mentions légales</a>
 	</footer><!-- #colophon -->
 
 </div><!-- #page -->
