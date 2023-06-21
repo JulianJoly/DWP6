@@ -8,27 +8,55 @@
     font-family: 'Syne', sans-serif !important;
 }
 
-.site a, .site a:hover {
-    text-decoration: none !important;
-    background-color: transparent !important;
-    color: black !important;
+.site-main {
+    padding: 0 !important;
+}
+
+.entry-content, .wp-block-group, .site h1 {
+    margin: 0 !important;
+}
+
+.wp-block-group {
+    gap: 0;
+}
+
+.site h1, .main-section {
+    width: 100% !important;
+}
+
+/* ANCHOR */
+
+header a, footer a {
     font-size: 16px !important;
     font-weight: 400;
-    padding: unset !important;
+}
+
+footer :is(a, a:hover), header :is(a, a:hover) {
+    text-decoration: none !important;
+}
+
+footer a:focus, header a:focus {
+    background-color: unset !important;
+    color: unset !important;
 }
 
 .site a:hover {
     font-weight: 700;
 }
 
-.site-main {
-    padding: 0 !important;
+/* ANCHOR */
+/* HEADINGS */
+
+.site :is(h1, h2, h3, h4, p) {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
 }
 
-.entry-content {
-    margin: 0 !important;
+.site :is(h1, h2) {
+    -webkit-text-stroke: thin;
 }
 
+/* HEADINGS */
 /* HEADER */
 
 .site-header {
@@ -38,6 +66,7 @@
     padding: 0 !important;
 }
 
+/* HEADER */
 /* HEADER LOGO */
 
 .site-branding {
@@ -60,10 +89,11 @@
 
 .text-logo {
     font-size: 12px;
-    color: var(--planty-tertiary);
+    color: var(--planty-logo-text);
     font-weight: 600;
 }
 
+/* HEADER LOGO */
 /* HEADER NAVIGATION */
 
 .primary-navigation {
@@ -102,24 +132,172 @@
     text-align: center;
     vertical-align: middle;
     color: white !important;
-    background-color: var(--planty-secondary) !important;
+    background-color: var(--planty-nav-button) !important;
 }
 
 .menu-item-45 a:hover {
     color: white !important;
-    background-color: var(--planty-secondary-hover) !important;
+    background-color: var(--planty-button-hover) !important;
 }
 
-/* HEADER MEDIA */
+/* HEADER NAVIGATION */
+/* MAIN */
 
-@media only screen and (min-width: 801px) {
+.main-section, .meet-us-section {
+    border-bottom-left-radius: 50% 10%;
+    border-bottom-right-radius: 50% 10%;
+}
+
+.flavor-group {
+    max-width: none !important;
+    justify-content: space-between !important;
+}
+
+.flavor-section {
+    border-bottom-left-radius: 50% 2.5%;
+    border-bottom-right-radius: 50% 2.5%;
+}
+
+.flavor-card {
+    width: 45%;
+    max-width: 393px;
+}
+
+.flavor-order-button a {
+    height: 55px;
+    width: 200px !important;
+    border: 0 !important;
+}
+
+#post-8 .flavor-order-button a:hover {
+    background-color: var(--planty-button-hover) !important;
+    color: white !important;
+}
+
+.wp-block-media-text__content {
+    padding-right: 0 !important;
+}
+
+.testimonials-card {
+    margin: 25px 25px 0 25px !important;
+}
+
+.meet-us-section {
+    background-image: url(../images/Planty\ Asset\ Meet\ Us.png);
+    background-repeat: no-repeat;
+    background-position-x: center;
+    background-position-y: center;
+}
+
+.team-section {
+    background-image: url(../images/Planty\ Asset\ Team.png);
+    background-repeat: no-repeat;
+    background-position-x: center;
+    background-position-y: bottom;
+}
+
+.team-group {
+    margin: auto !important;
+}
+
+.team-card {
+    margin: 25px 60px 0 60px !important;
+}
+
+.contact-us-section {
+    background-image: url(../images/Planty\ Asset\ Contact\ Us.png);
+    background-repeat: no-repeat;
+    background-position-x: center;
+    background-position-y: bottom;
+}
+
+/* MAIN */
+/* FORM */
+
+
+.form-text label {
+    font-size: 20px;
+    font-weight: 400 !important;
+}
+
+.form-text .ff-el-input--content {
+    max-width: 400px !important;
+}
+
+.form-button button {
+    width: 200px;
+    height: 55px;
+    background-color: var(--planty-order-button) !important;
+    color: white !important;
+    margin-top: 20px;
+}
+
+.form-button:hover button {
+    background-color: var(--planty-button-hover) !important;
+}
+
+.form-contact {
+    width: 400px;
+}
+
+.form-contact [name="Message"] {
+    height: 235px;
+}
+
+.form-order :is(h3, label) {
+    color: white !important;
+}
+
+.form-order-separator-above hr, .form-order-separator-below hr {
+    border-color: white;
+}
+    
+.form-order-separator-below {
+    width: 1px;
+    height: 100%;
+    background-color: white;
+}
+
+.form-order-container-below .ff-t-column-2 {
+    align-items: center;
+    flex-basis: 0.2% !important;
+}
+
+.form-order-container-below :is(.ff-t-column-1, .ff-t-column-3) {
+    flex-basis: 49.99% !important;
+}
+
+/* FORM */
+/* FOOTER */
+
+.planty-top-footer {
+    height: 100px;
+    background-image: url(../images/Planty\ Asset\ Footer.png);
+    background-repeat: repeat-x;
+    background-size: contain;
+}
+
+.planty-footer {
+    display: flex;
+    text-align: center;
+    height: 60px;
+}
+
+.planty-footer a {
+    margin: auto;
+}
+
+/* FOOTER */
+/* MEDIA */
+
+@media only screen and (min-width: 913px) {
     .menu-item-45, .menu-item-45 a {
         height: 80px !important;
         line-height: 80px;
     }
 }
 
-@media only screen and (max-width: 800px) {
+@media only screen and (max-width: 912px) {
     .site-header {
         height: 60px;
     }
@@ -128,12 +306,24 @@
         height: 100% !important;
     }
 
-    .menu-item a {
-        font-size: 2vw !important;
-    }
-
     .menu-item-45 a {
         line-height: 60px;
+    }
+
+    .site p:not(.text-logo), .menu-item a, .ff-el-input--label label {
+        font-size: calc(8px + 0.7vw) !important;
+    }
+
+    .site :is(h1, h2) {
+        font-size: calc(16px + 3vw) !important;
+    }
+
+    .site h3 {
+        font-size: calc(12px + 2vw) !important;
+    }
+
+    .site h4 {
+        font-size: calc(10px + 1vw) !important;
     }
 
     .text-logo {
@@ -141,10 +331,31 @@
     }
 }
 
+@media only screen and (max-width: 767px) {
+    .form-order-container-above, .form-order-container-below {
+        display: flex;
+        gap: 15px;
+        width: 100%;
+    }
+}
+
+@media only screen and (max-width: 624px) {
+    .form-order-container-above {
+        flex-wrap: wrap;
+        gap: 0;
+        justify-content: space-evenly;
+    }
+
+    .form-order-container-above .ff-t-cell {
+        flex-basis: 45% !important;
+    }
+}
+
 @media only screen and (max-width: 481px) {
     .site-header {
         justify-content: space-between;
     }
+
     .custom-logo {
         max-width: 300px !important;
         max-height: 100px !important;
@@ -214,10 +425,38 @@
     .primary-navigation-open .primary-navigation > div > .menu-wrapper > .menu-item-45 a {
         line-height: 71.27px !important;
     }
+
+    .flavor-order-button a, .ff-btn {
+        width: 45vw !important;
+        height: 8vw !important;
+        font-size: 4vw !important;
+        padding: 1vw 0 !important;
+    }
+
+    #post-8 .form-contact, .form-order {
+        width: 85%;
+    }
+
+    #ff_cn_id_2 {
+        flex-direction: column;
+    }
+
+    .form-order-separator-below {
+        width: 100%;
+        height: 0;
+    }
+
+    .form-order-container-below {
+        flex-direction: column;
+    }
+
+    .contact-us-section {
+        background-image: unset;
+    }
+
+    .form-contact [name="Message"] {
+        height: unset;
+    }
 }
 
-/* FOOTER */
-
-.planty-footer {
-    text-align: center;
-}
+/* MEDIA */
