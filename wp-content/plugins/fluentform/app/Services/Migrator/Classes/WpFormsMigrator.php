@@ -175,6 +175,7 @@ class WpFormsMigrator extends BaseMigrator
         }
         $args = [
             'form_id' => $form['ID'],
+            'order'  => 'asc',
         ];
         $totalEntries = wpforms()->entry->get_entries($args, true);// 2nd parameter 'true' means return total entries count
         $args['number'] = apply_filters('fluentform/entry_migration_max_limit', static::DEFAULT_ENTRY_MIGRATION_MAX_LIMIT, $this->key,  $totalEntries, $formId);
@@ -294,9 +295,10 @@ class WpFormsMigrator extends BaseMigrator
         
         switch ($type) {
             case 'input_text':
-                $max_length = ArrayHelper::get($field, 'limit_count', '');
-                if ($max_length && $mode = ArrayHelper::get($field, 'limit_mode')) {
-                    if ("words" == $mode && is_string($max_length)) {
+                if (ArrayHelper::isTrue($field, 'limit_enabled')) {
+                    $max_length = ArrayHelper::get($field, 'limit_count', '');
+                    $mode = ArrayHelper::get($field, 'limit_mode', '');
+                    if ("words" == $mode && $max_length) {
                         $max_length = (int)$max_length * 6; // average 6 characters is a word
                     }
                     $args['maxlength'] = $max_length;

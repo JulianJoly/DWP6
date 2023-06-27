@@ -293,6 +293,29 @@ $element_customization_settings = [
             ],
         ],
     ],
+    'step_animation' => [
+        'template'  => 'radioButton',
+        'label'     => __('Animation type', 'fluentform'),
+        'help_text' => __('Select any of them below, steps will change according to your choice.', 'fluentform'),
+        'options'   => [
+            [
+                'value' => 'slide',
+                'label' => __('Slide Left/Right', 'fluentform'),
+            ],
+            [
+                'value' => 'fade',
+                'label' => __('Fade In/Out', 'fluentform'),
+            ],
+            [
+                'value' => 'slide_down',
+                'label' => __('Slide Down/Up', 'fluentform'),
+            ],
+            [
+                'value' => 'none',
+                'label' => __('None', 'fluentform'),
+            ],
+        ],
+    ],
     'step_titles' => [
         'template'  => 'customStepTitles',
         'label'     => __('Step Titles', 'fluentform'),
@@ -504,7 +527,8 @@ $element_customization_settings = [
     ],
     'calculation_settings' => [
         'template'      => (defined('FLUENTFORMPRO')) ? 'inputCalculationSettings' : 'infoBlock',
-        'text'          => '<b>Calculation Field Settings</b><br />Calculate the value based on other numeric field is available on pro version of Fluent Forms. Please install Fluent Forms Pro to use this feature',
+        'text'          => '<strong>Calculation Field Settings</strong><br/>Calculate the value based on other numeric field is available on pro version of Fluent Forms. Please install Fluent Forms Pro to use this feature <br /> <a target="_blank" rel="noopener" href="https://fluentforms.com/pricing/?utm_source=plugin&amp;utm_medium=wp_install&amp;utm_campaign=ff_upgrade&amp;theme_style=twentytwentythree">
+        Upgrade to Pro                </a>',
         'label'         => 'Calculation Field Settings',
         'status_label'  => 'Enable Calculation',
         'formula_label' => 'Calculation Expression',
@@ -646,4 +670,14 @@ $element_customization_settings = [
     ]
 ];
 
-return apply_filters('fluent_editor_element_customization_settings', $element_customization_settings);
+$element_customization_settings = apply_filters_deprecated(
+    'fluentform_editor_element_customization_settings',
+    [
+        $element_customization_settings
+    ],
+    FLUENTFORM_FRAMEWORK_UPGRADE,
+    'fluentform/editor_element_customization_settings',
+    'Use fluentform/editor_element_customization_settings instead of fluent_editor_element_customization_settings.'
+);
+
+return apply_filters('fluentform/editor_element_customization_settings', $element_customization_settings);

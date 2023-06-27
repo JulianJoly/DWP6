@@ -2,9 +2,10 @@
 
 namespace FluentForm\App\Modules\Acl;
 
-use FluentValidator\Validator;
 use FluentForm\Framework\Helpers\ArrayHelper;
-
+/**
+ * @deprecated deprecated use FluentForm\App\Http\Controllers\RoleManagerController
+ */
 class Managers
 {
     /**
@@ -100,7 +101,7 @@ class Managers
             'email'       => 'required|email',
         ];
 
-        $validator = Validator::make($manager, $rules);
+        $validator = wpFluentForm('validator')->make($manager, $rules);
 
         $errors = null;
 

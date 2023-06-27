@@ -123,12 +123,15 @@ trait MailChimpSubscriber
                             if('address' == $fieldSettings['type']) {
                                 $mergeFields[$fieldName] = [
                                     'addr1'   => ArrayHelper::get($formFieldValue, 'address_line_1'),
-                                    'addr2'   => ArrayHelper::get($formFieldValue, 'address_line_2'),
                                     'city'    => ArrayHelper::get($formFieldValue, 'city'),
                                     'state'   => ArrayHelper::get($formFieldValue, 'state'),
                                     'zip'     => ArrayHelper::get($formFieldValue, 'zip'),
                                     'country' => ArrayHelper::get($formFieldValue, 'country'),
                                 ];
+
+                                if (ArrayHelper::exists($formFieldValue, 'address_line_2')) {
+                                    $mergeFields[$fieldName]['addr2'] = ArrayHelper::get($formFieldValue, 'address_line_2');
+                                }
                             }
                             else {
                                 $mergeFields[$fieldName] = date('d/m', strtotime($formFieldValue));
@@ -188,12 +191,32 @@ trait MailChimpSubscriber
                 $arguments['status'] = $status;
             }
             // We have members so we can merge the values
-            if (apply_filters('fluentform_mailchimp_keep_existing_interests', true, $form->id)) {
+            $status = apply_filters_deprecated(
+                'fluentform_mailchimp_keep_existing_interests',
+                [
+                    true,
+                    $form->id
+                ],
+                FLUENTFORM_FRAMEWORK_UPGRADE,
+                'fluentform/mailchimp_keep_existing_interests',
+                'Use fluentform/mailchimp_keep_existing_interests instead of fluentform_mailchimp_keep_existing_interests.'
+            );
+            if (apply_filters('fluentform/mailchimp_keep_existing_interests', $status, $form->id)) {
                 $arguments['interests'] = ArrayHelper::get($existingMember, 'interests', []);
             }
 
             if ($arguments['tags']) {
-                if (apply_filters('fluentform_mailchimp_keep_existing_tags', true, $form->id)) {
+                $isExistingTags = apply_filters_deprecated(
+                    'fluentform_mailchimp_keep_existing_tags',
+                    [
+                        true,
+                        $form->id
+                    ],
+                    FLUENTFORM_FRAMEWORK_UPGRADE,
+                    'fluentform/mailchimp_keep_existing_tags',
+                    'Use fluentform/mailchimp_keep_existing_tags instead of fluentform_mailchimp_keep_existing_tags.'
+                );
+                if (apply_filters('fluentform/mailchimp_keep_existing_tags', $isExistingTags, $form->id)) {
                     $tags = ArrayHelper::get($existingMember, 'tags', []);
                     $tagNames = [];
                     foreach ($tags as $tag) {

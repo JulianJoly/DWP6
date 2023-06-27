@@ -9,10 +9,14 @@ use FluentForm\App\Modules\HCaptcha\HCaptcha;
 use FluentForm\App\Modules\Turnstile\Turnstile;
 use FluentForm\App\Services\Integrations\MailChimp\MailChimp;
 
+
 /**
  * Global Settings
  *
  * @package FluentForm\App\Modules\Settings
+ */
+/**
+ * @deprecated deprecated use FluentForm\App\Http\Controllers\GlobalSettingsController
  */
 class Settings
 {
@@ -48,7 +52,20 @@ class Settings
         } else {
             $values[$key] = get_option($key);
         }
-        $values = apply_filters('fluentform_get_global_settings_values', $values, $key);
+    
+        $values = apply_filters_deprecated(
+            'fluentform_get_global_settings_values',
+            [
+                $values,
+                $key
+            ],
+            FLUENTFORM_FRAMEWORK_UPGRADE,
+            'fluentform/get_global_settings_values',
+            'Use fluentform/get_global_settings_values instead of fluentform_get_global_settings_values'
+        );
+
+        $values = apply_filters('fluentform/get_global_settings_values', $values, $key);
+
         wp_send_json_success($values, 200);
     }
 
@@ -65,7 +82,18 @@ class Settings
             'storeMailChimpSettings',
             'storeEmailSummarySettings',
         ];
-        do_action('fluentform_saving_global_settings_with_key_method', $this->request);
+
+        do_action_deprecated(
+            'fluentform_saving_global_settings_with_key_method',
+            [
+                $this->request
+            ],
+            FLUENTFORM_FRAMEWORK_UPGRADE,
+            'fluentform/saving_global_settings_with_key_method',
+            'Use fluentform/saving_global_settings_with_key_method instead of fluentform_saving_global_settings_with_key_method'
+        );
+
+        do_action('fluentform/saving_global_settings_with_key_method', $this->request);
 
         if (in_array($method, $allowedMethods)) {
             $this->{$method}();
@@ -287,7 +315,7 @@ class Settings
         update_option('_fluentform_global_form_settings', $sanitizedSettings, 'no');
 
         wp_send_json_success([
-            'message' => __('Global layout settings has been saved'),
+            'message' => __('Global settings has been saved'),
         ], 200);
     }
 

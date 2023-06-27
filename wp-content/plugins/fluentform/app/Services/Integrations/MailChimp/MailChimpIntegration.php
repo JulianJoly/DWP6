@@ -27,14 +27,14 @@ class MailChimpIntegration extends IntegrationManager
 
         $this->description = __('Fluent Forms Mailchimp module allows you to create Mailchimp newsletter signup forms in WordPress', 'fluentform');
 
-        $this->logo = $this->app->url('public/img/integrations/mailchimp.png');
+        $this->logo = fluentFormMix('img/integrations/mailchimp.png');
         $this->registerAdminHooks();
 
         add_action('wp_ajax_fluentform_mailchimp_interest_groups', [$this, 'fetchInterestGroups']);
 
-        add_filter('fluentform_save_integration_value_mailchimp', [$this, 'sanitizeSettings'], 10, 3);
+        add_filter('fluentform/save_integration_value_mailchimp', [$this, 'sanitizeSettings'], 10, 3);
 
-//        add_filter('fluentform_notifying_async_mailchimp', '__return_false');
+//        add_filter('fluentform/notifying_async_mailchimp', '__return_false');
     }
 
     public function getGlobalFields($fields)
@@ -240,7 +240,7 @@ class MailChimpIntegration extends IntegrationManager
                     'key'            => 'doubleOptIn',
                     'require_list'   => true,
                     'label'          => __('Double Opt-in', 'fluentform'),
-                    'tips'           => __('When the double opt-in option is enabled,<br />Mailchimp will send a confirmation email<br />to the user and will only add them to your <br /Mailchimp list upon confirmation.', 'fluentform'),
+                    'tips'           => __('When the double opt-in option is enabled, Mailchimp will send a confirmation email to the user and will only add them to your <br /Mailchimp list upon confirmation.', 'fluentform'),
                     'component'      => 'checkbox-single',
                     'checkbox_label' => __('Enable Double Opt-in', 'fluentform'),
                 ],
@@ -248,7 +248,7 @@ class MailChimpIntegration extends IntegrationManager
                     'key'            => 'resubscribe',
                     'require_list'   => true,
                     'label'          => __('ReSubscribe', 'fluentform'),
-                    'tips'           => __('When this option is enabled, if the subscriber is in an inactive state or<br />has previously been unsubscribed, they will be re-added to the active list.<br />Therefore, this option should be used with caution and only when appropriate.', 'fluentform'),
+                    'tips'           => __('When this option is enabled, if the subscriber is in an inactive state or has previously been unsubscribed, they will be re-added to the active list. Therefore, this option should be used with caution and only when appropriate.', 'fluentform'),
                     'component'      => 'checkbox-single',
                     'checkbox_label' => __('Enable ReSubscription', 'fluentform'),
                 ],
@@ -256,7 +256,7 @@ class MailChimpIntegration extends IntegrationManager
                     'key'            => 'markAsVIP',
                     'require_list'   => true,
                     'label'          => __('VIP', 'fluentform'),
-                    'tips'           => __('When enabled,<br /> This contact will be marked as VIP.', 'fluentform'),
+                    'tips'           => __('When enabled, This contact will be marked as VIP.', 'fluentform'),
                     'component'      => 'checkbox-single',
                     'checkbox_label' => __('Mark as VIP Contact', 'fluentform'),
                 ],
@@ -483,13 +483,14 @@ class MailChimpIntegration extends IntegrationManager
         $response = $this->subscribe($feed, $formData, $entry, $form);
 
         if (true == $response && !is_wp_error($response)) {
-            do_action('ff_integration_action_result', $feed, 'success', __('Mailchimp feed has been successfully initialed and pushed data', 'fluentform'));
+            $message = __('Mailchimp feed has been successfully initialed and pushed data', 'fluentform');
+            do_action('fluentform/integration_action_result', $feed, 'success', $message);
         } else {
             $message = __('Mailchimp feed has been failed to deliver feed', 'fluentform');
             if (is_wp_error($response)) {
                 $message = $response->get_error_message();
             }
-            do_action('ff_integration_action_result', $feed, 'failed', $message);
+            do_action('fluentform/integration_action_result', $feed, 'failed', $message);
         }
     }
 }

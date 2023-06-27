@@ -2,6 +2,11 @@
 
 namespace FluentForm\App\Helpers;
 
+use FluentForm\App\Models\EntryDetails;
+use FluentForm\App\Models\Form;
+use FluentForm\App\Models\FormMeta;
+use FluentForm\App\Models\Submission;
+use FluentForm\App\Models\SubmissionMeta;
 use FluentForm\Framework\Helpers\ArrayHelper;
 
 class Helper
@@ -24,7 +29,7 @@ class Helper
     public static function sanitizer($input, $attribute = null, $fields = [])
     {
         if (is_string($input)) {
-            if (ArrayHelper::get($fields, $attribute . '.element') === 'textarea') {
+            if ('textarea' === ArrayHelper::get($fields, $attribute . '.element')) {
                 $input = sanitize_textarea_field($input);
             } else {
                 $input = sanitize_text_field($input);
@@ -81,28 +86,45 @@ class Helper
     {
         json_decode($string);
 
-        return json_last_error() === JSON_ERROR_NONE;
+        return JSON_ERROR_NONE === json_last_error();
     }
 
     public static function isSlackEnabled()
     {
         $globalModules = get_option('fluentform_global_modules_status');
+
         return $globalModules && isset($globalModules['slack']) && 'yes' == $globalModules['slack'];
     }
 
     public static function getEntryStatuses($form_id = false)
     {
-        $statuses = apply_filters('fluentform_entry_statuses_core', [
-            'unread' => 'Unread',
-            'read'   => 'Read',
-        ], $form_id);
+        $statuses = [
+            'unread'    => 'Unread',
+            'read'      => 'Read',
+            'favorites' => 'Favorites',
+        ];
+    
+        $statuses = apply_filters_deprecated(
+            'fluentform_entry_statuses_core',
+            [
+                $statuses,
+                $form_id
+            ],
+            FLUENTFORM_FRAMEWORK_UPGRADE,
+            'fluentform/entry_statuses_core',
+            'Use fluentform/entry_statuses_core instead of fluentform_entry_statuses_core.'
+        );
+
+        $statuses = apply_filters('fluentform/entry_statuses_core', $statuses, $form_id);
+
         $statuses['trashed'] = 'Trashed';
+
         return $statuses;
     }
 
     public static function getReportableInputs()
     {
-        return apply_filters('fluentform_reportable_inputs', [
+        $data = [
             'select',
             'input_radio',
             'input_checkbox',
@@ -110,149 +132,76 @@ class Helper
             'net_promoter',
             'select_country',
             'net_promoter_score',
-        ]);
+        ];
+
+        $data = apply_filters_deprecated(
+            'fluentform_reportable_inputs',
+            [
+                $data
+            ],
+            FLUENTFORM_FRAMEWORK_UPGRADE,
+            'fluentform/reportable_inputs',
+            'Use fluentform/reportable_inputs instead of fluentform_reportable_inputs.'
+        );
+
+        return apply_filters('fluentform/reportable_inputs', $data);
     }
 
     public static function getSubFieldReportableInputs()
     {
-        return apply_filters('fluentform_subfield_reportable_inputs', [
-            'tabular_grid',
-        ]);
+        $grid = apply_filters_deprecated(
+            'fluentform_subfield_reportable_inputs',
+            [
+                ['tabular_grid']
+            ],
+            FLUENTFORM_FRAMEWORK_UPGRADE,
+            'fluentform/subfield_reportable_inputs',
+            'Use fluentform/subfield_reportable_inputs instead of fluentform_subfield_reportable_inputs.'
+        );
+
+        return apply_filters('fluentform/subfield_reportable_inputs', $grid);
     }
 
     public static function getFormMeta($formId, $metaKey, $default = '')
     {
-        $meta = wpFluent()->table('fluentform_form_meta')
-            ->where('meta_key', $metaKey)
-            ->where('form_id', $formId)
-            ->first();
-
-        if (!$meta || !$meta->value) {
-            return $default;
-        }
-
-        $metaValue = $meta->value;
-        // decode the JSON data
-        $result = json_decode($metaValue, true);
-
-        if (json_last_error() == JSON_ERROR_NONE) {
-            return $result;
-        }
-        return $metaValue;
+        return FormMeta::retrieve($metaKey, $formId, $default);
     }
 
     public static function setFormMeta($formId, $metaKey, $value)
     {
-        $meta = wpFluent()->table('fluentform_form_meta')
-            ->where('meta_key', $metaKey)
-            ->where('form_id', $formId)
-            ->first();
-
-        if (is_array($value) || is_object($value)) {
-            $value = json_encode($value);
-        }
-
-        if (!$meta) {
-            $insetid = wpFluent()->table('fluentform_form_meta')
-                ->insert([
-                    'meta_key' => $metaKey,
-                    'form_id'  => $formId,
-                    'value'    => $value,
-                ]);
-            return $insetid;
-        } else {
-            wpFluent()->table('fluentform_form_meta')
-                ->where('id', $meta->id)
-                ->update([
-                    'value' => $value,
-                ]);
-        }
-
-        return $meta->id;
+       if ($meta = FormMeta::persist($formId, $metaKey, $value)) {
+           return $meta->id;
+       }
+       return null;
     }
 
     public static function getSubmissionMeta($submissionId, $metaKey, $default = false)
     {
-        $meta = wpFluent()->table('fluentform_submission_meta')
-            ->where('response_id', $submissionId)
-            ->where('meta_key', $metaKey)
-            ->first();
-
-        if ($meta && $meta->value) {
-            return maybe_unserialize($meta->value);
-        }
-
-        return $default;
+        return SubmissionMeta::retrieve($metaKey, $submissionId, $default);
     }
 
     public static function setSubmissionMeta($submissionId, $metaKey, $value, $formId = false)
     {
-        $value = maybe_serialize($value);
-
-        // check if submission exist
-        $meta = wpFluent()->table('fluentform_submission_meta')
-            ->where('response_id', $submissionId)
-            ->where('meta_key', $metaKey)
-            ->first();
-
-        if ($meta) {
-            wpFluent()->table('fluentform_submission_meta')
-                ->where('id', $meta->id)
-                ->insert([
-                    'value'      => $value,
-                    'updated_at' => current_time('mysql'),
-                ]);
-            return $meta->id;
-        }
-
-        if (!$formId) {
-            $submission = wpFluent()->table('fluentform_submissions')
-                ->find($submissionId);
-            if ($submission) {
-                $formId = $submission->form_id;
-            }
-        }
-
-        return wpFluent()->table('fluentform_submission_meta')
-            ->insert([
-                'response_id' => $submissionId,
-                'form_id'     => $formId,
-                'meta_key'    => $metaKey,
-                'value'       => $value,
-                'created_at'  => current_time('mysql'),
-                'updated_at'  => current_time('mysql'),
-            ]);
+      if ($meta = SubmissionMeta::persist($submissionId, $metaKey, $value, $formId)) {
+          return $meta->id;
+      }
+      return null;
     }
 
     public static function isEntryAutoDeleteEnabled($formId)
     {
-        $settings = wpFluent()->table('fluentform_form_meta')
-            ->where('form_id', $formId)
-            ->where('meta_key', 'formSettings')
-            ->first();
-
-        if (!$settings) {
-            return false;
-        }
-
-        $formSettings = json_decode($settings->value, true);
-
-        if ($formSettings && ArrayHelper::get($formSettings, 'delete_entry_on_submission') == 'yes') {
+        if (
+            'yes' == ArrayHelper::get(static::getFormMeta($formId, 'formSettings', []), 'delete_entry_on_submission', '')
+        ) {
             return true;
         }
-
         return false;
     }
 
     public static function formExtraCssClass($form)
     {
         if (!$form->settings) {
-            $settings = wpFluent()->table('fluentform_form_meta')
-                ->where('form_id', $form->id)
-                ->where('meta_key', 'formSettings')
-                ->first();
-
-            $formSettings = json_decode($settings->value, true);
+            $formSettings = static::getFormMeta($form->id, 'formSettings');
         } else {
             $formSettings = $form->settings;
         }
@@ -261,7 +210,7 @@ class Helper
             return '';
         }
 
-        if ($formSettings && $extraClass = ArrayHelper::get($formSettings, 'form_extra_css_class')) {
+        if ($extraClass = ArrayHelper::get($formSettings, 'form_extra_css_class')) {
             return esc_attr($extraClass);
         }
 
@@ -270,16 +219,19 @@ class Helper
 
     public static function getNextTabIndex($increment = 1)
     {
-        if (self::isTabIndexEnabled()) {
+        if (static::isTabIndexEnabled()) {
             static::$tabIndex += $increment;
+
             return static::$tabIndex;
         }
+
         return '';
     }
 
     public static function getFormInstaceClass($formId)
     {
         static::$formInstance += 1;
+
         return 'ff_form_instance_' . $formId . '_' . static::$formInstance;
     }
 
@@ -298,7 +250,7 @@ class Helper
             'fluent_forms_add_ons',
             'fluent_forms_docs',
             'fluent_forms_payment_entries',
-            'fluent_forms_smtp',
+            'fluent_forms_smtp'
         ];
 
         $status = true;
@@ -309,7 +261,17 @@ class Helper
             $status = false;
         }
 
-        return apply_filters('fluentform_is_admin_page', $status);
+        $status = apply_filters_deprecated(
+            'fluentform_is_admin_page',
+            [
+                $status
+            ],
+            FLUENTFORM_FRAMEWORK_UPGRADE,
+            'fluentform/is_admin_page',
+            'Use fluentform/is_admin_page instead of fluentform_is_admin_page.'
+        );
+
+        return apply_filters('fluentform/is_admin_page', $status);
     }
 
     public static function getShortCodeIds($content, $tag = 'fluentform', $selector = 'id')
@@ -345,39 +307,41 @@ class Helper
     {
         if ('na' == static::$tabIndexStatus) {
             $globalSettings = get_option('_fluentform_global_form_settings');
-            static::$tabIndexStatus = ArrayHelper::get($globalSettings, 'misc.tabIndex') == 'yes';
+            static::$tabIndexStatus = 'yes' == ArrayHelper::get($globalSettings, 'misc.tabIndex');
         }
+
         return static::$tabIndexStatus;
     }
 
     public static function isMultiStepForm($formId)
     {
-        $form = wpFluent()->table('fluentform_forms')->find($formId);
+        $form = Form::find($formId);
         $fields = json_decode($form->form_fields, true);
 
         if (ArrayHelper::get($fields, 'stepsWrapper')) {
             return true;
         }
+
         return false;
     }
 
     public static function hasFormElement($formId, $elementName)
     {
-        $form = wpFluent()->table('fluentform_forms')->find($formId);
+        $form = Form::find($formId);
         $fieldsJson = $form->form_fields;
-        return strpos($fieldsJson, '"element":"' . $elementName . '"') != false;
+
+        return false != strpos($fieldsJson, '"element":"' . $elementName . '"');
     }
 
     public static function isUniqueValidation($validation, $field, $formData, $fields, $form)
     {
-        if (ArrayHelper::get($field, 'raw.settings.is_unique') == 'yes') {
+        if ('yes' == ArrayHelper::get($field, 'raw.settings.is_unique')) {
             $fieldName = ArrayHelper::get($field, 'name');
             if ($inputValue = ArrayHelper::get($formData, $fieldName)) {
-                $exist = wpFluent()->table('fluentform_entry_details')
-                    ->where('form_id', $form->id)
+                $exist = EntryDetails::where('form_id', $form->id)
                     ->where('field_name', $fieldName)
                     ->where('field_value', $inputValue)
-                    ->first();
+                    ->exists();
                 if ($exist) {
                     return [
                         'unique' => ArrayHelper::get($field, 'raw.settings.unique_validation_message'),
@@ -389,14 +353,26 @@ class Helper
         return $validation;
     }
 
+    public static function hasPartialEntries($formId)
+    {
+        static $cache = [];
+        if (isset($cache[$formId])) {
+            return $cache[$formId];
+        }
+
+        $cache[$formId] = 'yes' == static::getFormMeta($formId, 'form_save_state_status');
+
+        return $cache[$formId];
+    }
+
     public static function getNumericFormatters()
     {
-        return apply_filters('fluentform_numeric_styles', [
-            'none'                 => [
+        $data = [
+            'none' => [
                 'value' => '',
                 'label' => 'None',
             ],
-            'comma_dot_style'      => [
+            'comma_dot_style' => [
                 'value'    => 'comma_dot_style',
                 'label'    => __('US Style with Decimal (EX: 123,456.00)', 'fluentform'),
                 'settings' => [
@@ -416,7 +392,7 @@ class Helper
                     'symbol'    => '',
                 ],
             ],
-            'dot_comma_style'      => [
+            'dot_comma_style' => [
                 'value'    => 'dot_comma_style',
                 'label'    => __('EU Style with Decimal (Ex: 123.456,00)', 'fluentform'),
                 'settings' => [
@@ -436,12 +412,24 @@ class Helper
                     'symbol'    => '',
                 ],
             ],
-        ]);
+        ];
+
+        $data = apply_filters_deprecated(
+            'fluentform_numeric_styles',
+            [
+                $data
+            ],
+            FLUENTFORM_FRAMEWORK_UPGRADE,
+            'fluentform/numeric_styles',
+            'Use fluentform/numeric_styles instead of fluentform_numeric_styles.'
+        );
+
+        return apply_filters('fluentform/numeric_styles', $data);
     }
 
     public static function getNumericValue($input, $formatterName)
     {
-        $formatters = self::getNumericFormatters();
+        $formatters = static::getNumericFormatters();
         if (empty($formatters[$formatterName]['settings'])) {
             return $input;
         }
@@ -456,11 +444,12 @@ class Helper
         if (!is_numeric($input)) {
             return $input;
         }
-        $formatters = self::getNumericFormatters();
+        $formatters = static::getNumericFormatters();
         if (empty($formatters[$formatterName]['settings'])) {
             return $input;
         }
         $settings = $formatters[$formatterName]['settings'];
+
         return number_format($input, $settings['precision'], $settings['decimal'], $settings['separator']);
     }
 
@@ -468,7 +457,7 @@ class Helper
     {
         $fields = json_decode($fields, true);
         $items = $fields['fields'];
-        $inputNames = self::getFieldNamesStatuses($items);
+        $inputNames = static::getFieldNamesStatuses($items);
         $uniqueNames = array_unique($inputNames);
 
         if (count($inputNames) == count($uniqueNames)) {
@@ -483,10 +472,10 @@ class Helper
         $names = [];
 
         foreach ($fields as $field) {
-            if (ArrayHelper::get($field, 'element') == 'container') {
+            if ('container' == ArrayHelper::get($field, 'element')) {
                 $columns = ArrayHelper::get($field, 'columns', []);
                 foreach ($columns as $column) {
-                    $columnInputs = self::getFieldNamesStatuses(ArrayHelper::get($column, 'fields', []));
+                    $columnInputs = static::getFieldNamesStatuses(ArrayHelper::get($column, 'fields', []));
                     $names = array_merge($names, $columnInputs);
                 }
             } else {
@@ -506,19 +495,20 @@ class Helper
             return $cache[$formId];
         }
 
-        $cache[$formId] = self::getFormMeta($formId, 'is_conversion_form') == 'yes';
+        $cache[$formId] = 'yes' == static::getFormMeta($formId, 'is_conversion_form');
+
         return $cache[$formId];
     }
 
     public static function getPreviewUrl($formId, $type = '')
     {
         if ('conversational' == $type) {
-            return self::getConversionUrl($formId);
+            return static::getConversionUrl($formId);
         } elseif ('classic' == $type) {
             return site_url('?fluent_forms_pages=1&design_mode=1&preview_id=' . $formId) . '#ff_preview';
         } else {
-            if (self::isConversionForm($formId)) {
-                return self::getConversionUrl($formId);
+            if (static::isConversionForm($formId)) {
+                return static::getConversionUrl($formId);
             }
         }
 
@@ -528,26 +518,41 @@ class Helper
     public static function getFormAdminPermalink($route, $form)
     {
         $baseUrl = admin_url('admin.php?page=fluent_forms');
+
         return $baseUrl . '&route=' . $route . '&form_id=' . $form->id;
     }
 
     public static function getFormSettingsUrl($form)
     {
         $baseUrl = admin_url('admin.php?page=fluent_forms');
+
         return $baseUrl . '&form_id=' . $form->id . '&route=settings&sub_route=form_settings#basic_settings';
     }
 
     private static function getConversionUrl($formId)
     {
-        $meta = self::getFormMeta($formId, 'ffc_form_settings_meta', []);
+        $meta = static::getFormMeta($formId, 'ffc_form_settings_meta', []);
         $key = ArrayHelper::get($meta, 'share_key', '');
-        $paramKey = apply_filters('fluentform_conversational_url_slug', 'fluent-form');
+
+        $slug = apply_filters_deprecated(
+            'fluentform_conversational_url_slug',
+            [
+                'fluent-form'
+            ],
+            FLUENTFORM_FRAMEWORK_UPGRADE,
+            'fluentform/conversational_url_slug',
+            'Use fluentform/conversational_url_slug instead of fluentform_conversational_url_slug.'
+        );
+
+        $paramKey = apply_filters('fluentform/conversational_url_slug', $slug);
+
         if ('form' == $paramKey) {
             $paramKey = 'fluent-form';
         }
         if ($key) {
             return site_url('?' . $paramKey . '=' . $formId . '&form=' . $key);
         }
+
         return site_url('?' . $paramKey . '=' . $formId);
     }
 
@@ -556,7 +561,7 @@ class Helper
         $locations = [
             [
                 'value' => 'default',
-                'label' => __('Fluentforms Default', 'fluentform'),
+                'label' => __('Fluent Forms Default', 'fluentform'),
             ],
             [
                 'value' => 'wp_media',
@@ -564,24 +569,29 @@ class Helper
             ],
         ];
 
-        return apply_filters('fluentform_file_upload_options', $locations);
+        $locations = apply_filters_deprecated(
+            'fluentform_file_upload_options',
+            [
+                $locations
+            ],
+            FLUENTFORM_FRAMEWORK_UPGRADE,
+            'fluentform/file_upload_options',
+            'Use fluentform/file_upload_options instead of fluentform_file_upload_options'
+        );
+
+        return apply_filters('fluentform/file_upload_options', $locations);
     }
 
-    private function unreadCount($formId)
+    public static function unreadCount($formId)
     {
-        return wpFluent()->table('fluentform_submissions')
-            ->where('status', 'unread')
+        return Submission::where('status', 'unread')
             ->where('form_id', $formId)
             ->count();
     }
 
     public static function getForms()
     {
-        $ff_list = wpFluent()->table('fluentform_forms')
-            ->select(['id', 'title'])
-            ->orderBy('id', 'DESC')
-            ->get();
-
+        $ff_list = Form::select(['id', 'title'])->orderBy('id', 'DESC')->get();
         $forms = [];
 
         if ($ff_list) {
@@ -611,7 +621,7 @@ class Helper
 
     public static function hasBrTag($content)
     {
-        return is_string($content) && strpos($content, '<br />') !== false;
+        return is_string($content) && false !== strpos($content, '<br />');
     }
 
     public static function sanitizeForCSV($content)
@@ -636,12 +646,23 @@ class Helper
 
     public static function getForm($id)
     {
-        return wpFluent()->table('fluentform_forms')->where('id', $id)->first();
+        return Form::where('id', $id)->first();
     }
 
     public static function shouldHidePassword($formId)
     {
-        return apply_filters('fluentform_truncate_password_values', true, $formId) &&
+        $isTruncate = apply_filters_deprecated(
+            'fluentform_truncate_password_values',
+            [
+                true,
+                $formId
+            ],
+            FLUENTFORM_FRAMEWORK_UPGRADE,
+            'fluentform/truncate_password_values',
+            'Use fluentform/truncate_password_values instead of fluentform_truncate_password_values.'
+        );
+
+        return apply_filters('fluentform/truncate_password_values', $isTruncate, $formId) &&
         (
             (defined('FLUENTFORM_RENDERING_ENTRIES') && FLUENTFORM_RENDERING_ENTRIES) ||
             (defined('FLUENTFORM_RENDERING_ENTRY') && FLUENTFORM_RENDERING_ENTRY) ||
@@ -690,15 +711,52 @@ class Helper
                 $value .= $rowJoiner;
             }
         }
+
         return $value;
     }
 
     public static function getInputNameFromShortCode($value)
     {
         preg_match('/{+(.*?)}/', $value, $matches);
-        if ($matches && strpos($matches[1], 'inputs.') !== false) {
+        if ($matches && false !== strpos($matches[1], 'inputs.')) {
             return substr($matches[1], strlen('inputs.'));
         }
+
         return '';
+    }
+
+    public static function getRestInfo()
+    {
+        $config = wpFluentForm('config');
+
+        $namespace = $config->get('app.rest_namespace');
+        $version = $config->get('app.rest_version');
+        $restUrl = rest_url($namespace . '/' . $version);
+        $restUrl = rtrim($restUrl, '/\\');
+
+        return [
+            'base_url'  => esc_url_raw(rest_url()),
+            'url'       => $restUrl,
+            'nonce'     => wp_create_nonce('wp_rest'),
+            'namespace' => $namespace,
+            'version'   => $version,
+        ];
+    }
+
+    public static function getLogInitiator($action, $type = 'log')
+    {
+        if ('log' === $type) {
+            $title = ucwords(implode(' ', preg_split('/(?=[A-Z])/', $action)));
+        } else {
+            $title = ucwords(
+                str_replace(
+                    ['fluentform/integration_notify_', 'fluentform_', '_notification_feed', '_'],
+                    ['', '', '', ' '],
+                    $action
+                )
+            );
+        }
+
+        return $title;
     }
 }

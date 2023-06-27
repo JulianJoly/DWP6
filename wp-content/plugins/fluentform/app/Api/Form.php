@@ -22,7 +22,7 @@ class Form
 
         $atts = wp_parse_args($atts, $defaultAtts);
 
-        $perPage = intval(ArrayHelper::get($atts, 'per_page', 10));
+        $perPage = (int) ArrayHelper::get($atts, 'per_page', 10);
         $search = sanitize_text_field(ArrayHelper::get($atts, 'search', ''));
         $status = sanitize_text_field(ArrayHelper::get($atts, 'status', 'all'));
         $filter_by = sanitize_text_field(ArrayHelper::get($atts, 'filter_by', 'all'));
@@ -32,8 +32,7 @@ class Form
         $shortColumn = sanitize_sql_orderby(ArrayHelper::get($atts, 'sort_column', 'id'));
         $sortBy = Helper::sanitizeOrderValue(ArrayHelper::get($atts, 'sort_by', 'DESC'));
 
-        $query = wpFluent()->table('fluentform_forms')
-            ->orderBy($shortColumn, $sortBy);
+        $query = \FluentForm\App\Models\Form::orderBy($shortColumn, $sortBy)->getQuery();
 
         if ($status && 'all' != $status) {
             $query->where('status', $status);
@@ -138,7 +137,7 @@ class Form
 
     public function find($formId)
     {
-        return wpFluent()->table('fluentform_forms')->where('id', $formId)->first();
+        return \FluentForm\App\Models\Form::where('id', $formId)->first();
     }
 
     /**

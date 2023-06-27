@@ -4,6 +4,7 @@ namespace FluentForm\App\Services\FormBuilder\Components;
 
 use FluentForm\Framework\Helpers\ArrayHelper;
 use FluentForm\App\Modules\Component\Component;
+use FluentForm\Framework\Support\Helper;
 
 class BaseComponent
 {
@@ -15,7 +16,7 @@ class BaseComponent
     }
 
     /**
-     * Build unique ID concating form id and name attribute
+     * Build unique ID concatenating form id and name attribute
      *
      * @param array $data $form
      *
@@ -24,12 +25,21 @@ class BaseComponent
     protected function makeElementId($data, $form)
     {
         if (isset($data['attributes']['name'])) {
-            if (! empty($data['attributes']['id'])) {
+            $formInstance = \FluentForm\App\Helpers\Helper::$formInstance;
+            if (!empty($data['attributes']['id'])) {
                 return $data['attributes']['id'];
             }
             $elementName = $data['attributes']['name'];
             $elementName = str_replace(['[', ']', ' '], '_', $elementName);
-            return 'ff_' . esc_attr($form->id) . '_' . esc_attr($elementName) . '';
+
+            $suffix = esc_attr($form->id);
+            if($formInstance > 1) {
+                $suffix = $suffix.'_'.$formInstance;
+            }
+
+            $suffix .= '_'.$elementName;
+
+            return 'ff_' . esc_attr($suffix);
         }
     }
 

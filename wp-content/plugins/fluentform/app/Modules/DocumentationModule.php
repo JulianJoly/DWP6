@@ -2,15 +2,13 @@
 
 namespace FluentForm\App\Modules;
 
-use FluentForm\App;
-use FluentForm\View;
-
 class DocumentationModule
 {
     public function render()
     {
-        View::render('admin.docs.index', [
-            'icon_path_url' => App::publicUrl(),
+        wpFluentForm('view')->render('admin.docs.index', [
+            'public_url' => fluentformMix(),
+            'icon_path_url' => fluentformMix(''),
             'user_guides'   => $this->getUserGuides(),
         ]);
     }
@@ -63,6 +61,17 @@ class DocumentationModule
                 'link'  => 'https://wpmanageninja.com/docs/fluent-form/field-types/',
             ],
         ];
-        return apply_filters('fluentform_user_guide_links', $guides);
+    
+        $guides = apply_filters_deprecated(
+            'fluentform_user_guide_links',
+            [
+                $guides
+            ],
+            FLUENTFORM_FRAMEWORK_UPGRADE,
+            'fluentform/user_guide_links',
+            'Use fluentform/user_guide_links instead of fluentform_user_guide_links'
+        );
+
+        return apply_filters('fluentform/user_guide_links', $guides);
     }
 }

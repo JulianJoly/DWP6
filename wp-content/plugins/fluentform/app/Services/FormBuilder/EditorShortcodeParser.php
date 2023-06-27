@@ -3,8 +3,6 @@
 namespace FluentForm\App\Services\FormBuilder;
 
 use FluentForm\App\Services\Browser\Browser;
-use FluentForm\Framework\Helpers\ArrayHelper;
-use FluentForm\Request;
 
 class EditorShortcodeParser
 {
@@ -145,10 +143,12 @@ class EditorShortcodeParser
             if (count($handlerArray) > 1) {
                 // it's a grouped handler
                 $group = array_shift($handlerArray);
-                return apply_filters('fluentform_editor_shortcode_callback_group_' . $group, '{' . $handler . '}', $form, $handlerArray);
+                $parsedValue = apply_filters('fluentform_editor_shortcode_callback_group_' . $group, '{' . $handler . '}', $form, $handlerArray);
+                return apply_filters('fluentform/editor_shortcode_callback_group_' . $group, $parsedValue, $form, $handlerArray);
             }
 
-            return apply_filters('fluentform_editor_shortcode_callback_' . $handler, '{' . $handler . '}', $form);
+            $parsedValue = apply_filters('fluentform_editor_shortcode_callback_' . $handler, '{' . $handler . '}', $form);
+            return apply_filters('fluentform/editor_shortcode_callback_' . $handler, $parsedValue, $form);
         }
 
         return $filteredValue;
@@ -316,7 +316,7 @@ class EditorShortcodeParser
      */
     private static function parseIp($value, $form = null)
     {
-        $ip = Request::getIp();
+        $ip = wpFluentForm('request')->getIp();
         return $ip ? $ip : $value;
     }
 

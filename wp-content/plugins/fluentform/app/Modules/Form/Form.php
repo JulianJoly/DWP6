@@ -42,15 +42,15 @@ class Form
     protected $formType = 'form';
 
     protected $hasPayment = 0;
-
-    protected $model;
+    /**
+     * @var \FluentForm\Framework\Database\Query\Builder
+     */
+    protected $model = null;
 
     /**
      * Form constructor.
      *
      * @param \FluentForm\Framework\Foundation\Application $application
-     *
-     * @throws \Exception
      */
     public function __construct(Application $application)
     {
@@ -60,8 +60,6 @@ class Form
 
     /**
      * Get all forms from database
-     *
-     * @throws \Exception
      */
     public function index()
     {
@@ -110,7 +108,7 @@ class Form
             $insertData['has_payment'] = $this->hasPayment;
         }
 
-        $formId = $this->model->insert($insertData);
+        $formId = $this->model->insertGetId($insertData);
 
         // Rename the form name  here
         wpFluent()->table('fluentform_forms')->where('id', $formId)->update([
@@ -131,8 +129,18 @@ class Form
         } else {
             // add default form settings now
             $defaultSettings = $this->defaultSettings ?: $this->getFormsDefaultSettings($formId);
+    
+            $defaultSettings = apply_filters_deprecated(
+                'fluentform_create_default_settings',
+                [
+                    $defaultSettings
+                ],
+                FLUENTFORM_FRAMEWORK_UPGRADE,
+                'fluentform/create_default_settings',
+                'Use fluentform/create_default_settings instead of fluentform_create_default_settings.'
+            );
 
-            $defaultSettings = apply_filters('fluentform_create_default_settings', $defaultSettings);
+            $defaultSettings = apply_filters('fluentform/create_default_settings', $defaultSettings);
 
             wpFluent()->table('fluentform_form_meta')
                 ->insert([
@@ -151,7 +159,18 @@ class Form
             }
         }
 
-        do_action('fluentform_inserted_new_form', $formId, $insertData);
+        do_action_deprecated(
+            'fluentform_inserted_new_form',
+            [
+                $formId,
+                $insertData
+            ],
+            FLUENTFORM_FRAMEWORK_UPGRADE,
+            'fluentform/inserted_new_form',
+            'Use fluentform/inserted_new_form instead of fluentform_inserted_new_form.'
+        );
+
+        do_action('fluentform/inserted_new_form', $formId, $insertData);
 
         $data = [
             'formId'       => $formId,
@@ -285,7 +304,7 @@ class Form
                 ]);
         }
 
-        return wpFluent()->table('fluentform_form_meta')->insert([
+        return wpFluent()->table('fluentform_form_meta')->insertGetId([
             'form_id'  => $formId,
             'meta_key' => $metaKey,
             'value'    => $metaValue,
@@ -322,8 +341,6 @@ class Form
 
     /**
      * Save/update a form from backend/editor
-     *
-     * @throws \WpFluent\Exception
      */
     public function update()
     {
@@ -340,7 +357,17 @@ class Form
         ];
 
         if ($formFields = $this->request->get('formFields')) {
-            $formFields = apply_filters('fluentform_form_fields_update', $formFields, $formId);
+            $formFields = apply_filters_deprecated(
+                'fluentform_form_fields_update',
+                [
+                    $formFields,
+                    $formId
+                ],
+                FLUENTFORM_FRAMEWORK_UPGRADE,
+                'fluentform/form_fields_update',
+                'Use fluentform/form_fields_update instead of fluentform_form_fields_update.'
+            );
+            $formFields = apply_filters('fluentform/form_fields_update', $formFields, $formId);
             $formFields = $this->sanitizeFields($formFields);
             $data['form_fields'] = $formFields;
         }
@@ -473,8 +500,6 @@ class Form
 
     /**
      * Delete a from from database
-     *
-     * @throws \WpFluent\Exception
      */
     public function delete()
     {
@@ -531,14 +556,13 @@ class Form
             } catch (\Exception $exception) {
             }
         }
+
         $errors = ob_get_clean();
         return $errors;
     }
 
     /**
      * Duplicate a from
-     *
-     * @throws \WpFluent\Exception
      */
     public function duplicate()
     {
@@ -558,7 +582,7 @@ class Form
             'updated_at'          => current_time('mysql'),
         ];
 
-        $newFormId = $this->model->insert($data);
+        $newFormId = $this->model->insertGetId($data);
 
         // Rename the form name  here
         wpFluent()->table('fluentform_forms')
@@ -605,7 +629,17 @@ class Form
             }
         }
 
-        do_action('flentform_form_duplicated', $newFormId);
+        do_action_deprecated(
+            'flentform_form_duplicated',
+            [
+                $newFormId
+            ],
+            FLUENTFORM_FRAMEWORK_UPGRADE,
+            'fluentform/form_duplicated',
+            'Use fluentform/form_duplicated instead of flentform_form_duplicated.'
+        );
+
+        do_action('flentform/form_duplicated', $newFormId);
 
         wp_send_json([
             'message'  => __('Form has been successfully duplicated.', 'fluentform'),
@@ -714,7 +748,7 @@ class Form
                     'value'    => $pdf_feed->value,
                     'form_id'  => $newFormId,
                 ];
-                $pdfFeedMap[$pdf_feed->id] = wpFluent()->table('fluentform_form_meta')->insert($pdfData);
+                $pdfFeedMap[$pdf_feed->id] = wpFluent()->table('fluentform_form_meta')->insertGetId($pdfData);
             }
         }
         return $pdfFeedMap;
@@ -766,7 +800,18 @@ class Form
             'posts_per_page' => -1
         );
     
-        $params = apply_filters('fluentform_find_shortcode_params', $params);
+        $params = apply_filters_deprecated(
+            'fluentform_find_shortcode_params',
+            [
+                $params
+            ],
+            FLUENTFORM_FRAMEWORK_UPGRADE,
+            'fluentform/find_shortcode_params',
+            'Use fluentform/find_shortcode_params instead of fluentform_find_shortcode_params.'
+        );
+
+        $params = apply_filters('fluentform/find_shortcode_params', $params);
+
         $formLocations = [];
         $posts = get_posts($params);
         foreach($posts as $post) {

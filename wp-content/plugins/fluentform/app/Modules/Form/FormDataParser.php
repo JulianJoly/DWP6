@@ -3,7 +3,6 @@
 namespace FluentForm\App\Modules\Form;
 
 use FluentForm\Framework\Helpers\ArrayHelper;
-use WpFluent\Exception;
 
 class FormDataParser
 {
@@ -53,12 +52,26 @@ class FormDataParser
     public static function parseData($response, $fields, $formId, $isHtml = false)
     {
         $trans = [];
-
         foreach ($fields as $field_key => $field) {
             if (isset($response->{$field_key})) {
-                $value = apply_filters(
+                $value = $response->{$field_key};
+                
+                $value = apply_filters_deprecated(
                     'fluentform_response_render_' . $field['element'],
-                    $response->{$field_key},
+                    [
+                        $value,
+                        $field,
+                        $formId,
+                        $isHtml
+                    ],
+                    FLUENTFORM_FRAMEWORK_UPGRADE,
+                    'fluentform/response_render_' . $field['element'],
+                    'Use fluentform/response_render_' . $field['element'] . ' instead of fluentform_response_render_' . $field['element']
+                );
+
+                $value = apply_filters(
+                    'fluentform/response_render_' . $field['element'],
+                    $value,
                     $field,
                     $formId,
                     $isHtml
@@ -192,7 +205,7 @@ class FormDataParser
                 <?php
             }
             return ob_get_clean();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
         }
 
         return $value;
@@ -247,7 +260,7 @@ class FormDataParser
             $elMarkup .= '</tbody></table>';
 
             return $elMarkup;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
         }
         return '';
     }

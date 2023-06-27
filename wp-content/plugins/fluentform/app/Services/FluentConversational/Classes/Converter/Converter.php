@@ -27,7 +27,19 @@ class Converter
         $allowedFields = static::fieldTypes();
 
         foreach ($fields as $field) {
-            $field = apply_filters('fluentform_rendering_field_data_' . $field['element'], $field, $form);
+            $field = apply_filters_deprecated(
+                'fluentform_rendering_field_data_' . $field['element'],
+                [
+                    $field,
+                    $form
+                ],
+                FLUENTFORM_FRAMEWORK_UPGRADE,
+                'fluentform/rendering_field_data_' . $field['element'],
+                'Use fluentform/rendering_field_data_' . $field['element'] . ' instead of fluentform_rendering_field_data_' . $field['element']
+            );
+
+            $field = apply_filters('fluentform/rendering_field_data_' . $field['element'], $field, $form);
+
             $question = [
                 'id'              => $field['uniqElKey'],
                 'name'            => ArrayHelper::get($field, 'attributes.name'),
@@ -150,7 +162,19 @@ class Converter
                 $question['max'] = is_numeric($question['max']) ? $question['max'] : null;
                 $question['is_calculable'] = true;
                 $form->hasCalculation = static::hasFormula($question);
-                do_action('ff_rendering_calculation_form', $form, $field);
+
+                do_action_deprecated(
+                    'ff_rendering_calculation_form',
+                    [
+                        $form,
+                        $field
+                    ],
+                    FLUENTFORM_FRAMEWORK_UPGRADE,
+                    'fluentform/rendering_calculation_form',
+                    'Use fluentform/rendering_calculation_form instead of ff_rendering_calculation_form'
+                );
+
+                do_action('fluentform/rendering_calculation_form', $form, $field);
             } elseif (in_array($field['element'], ['terms_and_condition', 'gdpr_agreement'])) {
                 $question['options'] = [
                     [
@@ -179,8 +203,8 @@ class Converter
                 $app = wpFluentForm();
                 $dateField = new DateTime();
 
-                wp_enqueue_style('flatpickr', $app->publicUrl('libs/flatpickr/flatpickr.min.css'));
-                wp_enqueue_script('flatpickr', $app->publicUrl('libs/flatpickr/flatpickr.min.js'), [], false, true);
+                wp_enqueue_style('flatpickr', fluentFormMix('libs/flatpickr/flatpickr.min.css'));
+                wp_enqueue_script('flatpickr', fluentFormMix('libs/flatpickr/flatpickr.min.js'), [], false, true);
 
                 $question['dateConfig'] = json_decode($dateField->getDateFormatConfigJSON($field['settings'], $form));
                 $question['dateCustomConfig'] = $dateField->getCustomConfig($field['settings']);
@@ -235,6 +259,24 @@ class Converter
                 }
 
                 $question['requiredPerRow'] = ArrayHelper::get($field, 'settings.validation_rules.required.per_row');
+            } elseif ('rangeslider' === $field['element']) {
+                if ($field['attributes']['value'] == '') {
+                    $question['answer'] = 0;
+                } else {
+                    $question['answer'] = +$field['attributes']['value'];
+                }
+
+                $question['min'] = intval($field['attributes']['min']);
+                $question['max'] = intval($field['attributes']['max']);
+
+                if ($step = ArrayHelper::get($field, 'settings.number_step')) {
+                    $question['step'] = intval($step);
+                } else {
+                    $question['step'] = 1;
+                }
+
+                $question['is_calculable'] = true;
+                $question['type'] = 'FlowFormRangesliderType';
             } elseif ('multi_payment_component' === $field['element']) {
                 $type = $field['attributes']['type'];
 
@@ -322,7 +364,19 @@ class Converter
                 $question['is_payment_field'] = true;
                 $question['is_calculable'] = true;
                 $form->hasCalculation = static::hasFormula($question);
-                do_action('ff_rendering_calculation_form', $form, $field);
+
+                do_action_deprecated(
+                    'ff_rendering_calculation_form',
+                    [
+                        $form,
+                        $field
+                    ],
+                    FLUENTFORM_FRAMEWORK_UPGRADE,
+                    'fluentform/rendering_calculation_form',
+                    'Use fluentform/rendering_calculation_form instead of ff_rendering_calculation_form'
+                );
+
+                do_action('fluentform/rendering_calculation_form', $form, $field);
             } elseif ('item_quantity_component' === $field['element']) {
                 $question['type'] = $allowedFields['input_number'];
                 $question['targetProduct'] = $field['settings']['target_product'];
@@ -347,8 +401,20 @@ class Converter
 
                         $question['paymentMethods'][$methodName] = $paymentMethod;
 
-                        do_action(
+                        do_action_deprecated(
                             'fluentform_rendering_payment_method_' . $methodName,
+                            [
+                                $paymentMethod,
+                                $field,
+                                $form
+                            ],
+                            FLUENTFORM_FRAMEWORK_UPGRADE,
+                            'fluentform/rendering_payment_method_' . $methodName,
+                            'Use fluentform/rendering_payment_method_' . $methodName . ' instead of fluentform_rendering_payment_method_' . $methodName
+                        );
+
+                        do_action(
+                            'fluentform/rendering_payment_method_' . $methodName,
                             $paymentMethod,
                             $field,
                             $form
@@ -498,6 +564,7 @@ class Converter
             $fieldTypes['subscription_payment_component'] = 'FlowFormSubscriptionType';
             $fieldTypes['payment_coupon'] = 'FlowFormCouponType';
             $fieldTypes['quiz_score'] = 'FlowFormHiddenType';
+            $fieldTypes['rangeslider'] = 'FlowFormRangesliderType';
         }
 
         return $fieldTypes;
@@ -566,8 +633,20 @@ class Converter
                 $itlOptions['onlyCountries'] = array_keys($countries);
             }
         }
+    
+        $itlOptions = apply_filters_deprecated(
+            'fluentform_itl_options',
+            [
+                $itlOptions,
+                $data,
+                $form
+            ],
+            FLUENTFORM_FRAMEWORK_UPGRADE,
+            'fluentform/itl_options',
+            'Use fluentform/itl_options instead of fluentform_itl_options'
+        );
 
-        $itlOptions = apply_filters('fluentform_itl_options', $itlOptions, $data, $form);
+        $itlOptions = apply_filters('fluentform/itl_options', $itlOptions, $data, $form);
         $itlOptions = json_encode($itlOptions);
 
         $settings = get_option('_fluentform_global_form_settings');
@@ -577,7 +656,18 @@ class Converter
         if ($token) {
             $url = 'https://ipinfo.io/?token=' . $token;
         }
-        $ipProviderUrl = apply_filters('fluentform_ip_provider', $url);
+    
+        $url = apply_filters_deprecated(
+            'fluentform_ip_provider',
+            [
+                $url
+            ],
+            FLUENTFORM_FRAMEWORK_UPGRADE,
+            'fluentform/ip_provider',
+            'Use fluentform/ip_provider instead of fluentform_ip_provider'
+        );
+
+        $ipProviderUrl = apply_filters('fluentform/ip_provider', $url);
 
         return [
             'enabled'     => $enabled,

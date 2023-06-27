@@ -41,12 +41,12 @@ class Component
 
         // We will just register the scripts here. We will not load any scripts from here
 
-        $fluentFormPublicCss = $app->publicUrl('css/fluent-forms-public.css');
-        $fluentFormPublicDefaultCss = $app->publicUrl('css/fluentform-public-default.css');
+        $fluentFormPublicCss = fluentFormMix('css/fluent-forms-public.css');
+        $fluentFormPublicDefaultCss = fluentFormMix('css/fluentform-public-default.css');
 
         if (is_rtl()) {
-            $fluentFormPublicCss = $app->publicUrl('css/fluent-forms-public-rtl.css');
-            $fluentFormPublicDefaultCss = $app->publicUrl('css/fluentform-public-default-rtl.css');
+            $fluentFormPublicCss = fluentFormMix('css/fluent-forms-public-rtl.css');
+            $fluentFormPublicDefaultCss = fluentFormMix('css/fluentform-public-default-rtl.css');
         }
 
         wp_register_style(
@@ -65,7 +65,7 @@ class Component
 
         wp_register_script(
             'fluent-form-submission',
-            $app->publicUrl('js/form-submission.js'),
+            fluentFormMix('js/form-submission.js'),
             ['jquery'],
             FLUENTFORM_VERSION,
             true
@@ -73,7 +73,7 @@ class Component
 
         wp_register_script(
             'fluentform-advanced',
-            $app->publicUrl('js/fluentform-advanced.js'),
+            fluentFormMix('js/fluentform-advanced.js'),
             ['jquery'],
             FLUENTFORM_VERSION,
             true
@@ -84,13 +84,13 @@ class Component
         if (!wp_script_is('flatpickr', 'registered')) {
             wp_register_style(
                 'flatpickr',
-                $app->publicUrl('libs/flatpickr/flatpickr.min.css')
+                fluentFormMix('libs/flatpickr/flatpickr.min.css')
             );
         }
         // Date Pickckr Script
         wp_register_script(
             'flatpickr',
-            $app->publicUrl('libs/flatpickr/flatpickr.min.js'),
+            fluentFormMix('libs/flatpickr/flatpickr.min.js'),
             ['jquery'],
             false,
             true
@@ -98,7 +98,7 @@ class Component
 
         wp_register_script(
             'choices',
-            $app->publicUrl('libs/choices/choices.min.js'),
+            fluentFormMix('libs/choices/choices.min.js'),
             [],
             '9.0.1',
             true
@@ -106,20 +106,30 @@ class Component
 
         wp_register_style(
             'ff_choices',
-            $app->publicUrl('css/choices.css'),
+            fluentFormMix('css/choices.css'),
             [],
             FLUENTFORM_VERSION
         );
 
         wp_register_script(
             'form-save-progress',
-            $app->publicUrl('js/form-save-progress.js'),
+            fluentFormMix('js/form-save-progress.js'),
             ['jquery'],
             FLUENTFORM_VERSION,
             true
         );
 
-        do_action('fluentform_scripts_registered');
+        do_action_deprecated(
+            'fluentform_scripts_registered',
+            [
+
+            ],
+            FLUENTFORM_FRAMEWORK_UPGRADE,
+            'fluentform/scripts_registered',
+            'Use fluentform/scripts_registered instead of fluentform_scripts_registered.'
+        );
+
+        $this->app->doAction('fluentform/scripts_registered');
 
         $this->maybeLoadFluentFormStyles();
     }
@@ -135,17 +145,40 @@ class Component
         $fluentFormIds = get_post_meta($postId, '_has_fluentform', true);
         $hasFluentformMeta = is_a($post, 'WP_Post') && $fluentFormIds;
 
-        if ($hasFluentformMeta || apply_filters('fluentform_load_styles', false, $post)) {
+        $loadStyle =  apply_filters_deprecated(
+            'fluentform_load_styles',
+            [
+                false,
+                $post
+            ],
+            FLUENTFORM_FRAMEWORK_UPGRADE,
+            'fluentform/load_styles',
+            'Use fluentform/load_styles instead of fluentform_load_styles.'
+        );
+
+        if ($hasFluentformMeta || apply_filters('fluentform/load_styles', $loadStyle, $post)) {
             wp_enqueue_style('fluent-form-styles');
             wp_enqueue_style('fluentform-public-default');
-            do_action('fluentform_pre_load_scripts', $post);
+
+            do_action_deprecated(
+                'fluentform_pre_load_scripts',
+                [
+                    $post
+                ],
+                FLUENTFORM_FRAMEWORK_UPGRADE,
+                'fluentform/pre_load_scripts',
+                'Use fluentform/pre_load_scripts instead of fluentform_pre_load_scripts.'
+            );
+
+            $this->app->doAction('fluentform/pre_load_scripts', $post);
+
             wp_enqueue_script('fluent-form-submission');
         }
     }
 
     /**
      * Get all the available components
-     *
+     * @deprecated Use \FluentForm\App\Http\Controllers\FormController::resources
      * @return void
      *
      * @throws \Exception
@@ -157,15 +190,35 @@ class Component
 
         $components = $this->app->make('components');
 
-        $this->app->doAction('fluent_editor_init', $components);
+        do_action_deprecated(
+            'fluent_editor_init',
+            [
+                $components
+            ],
+            FLUENTFORM_FRAMEWORK_UPGRADE,
+            'fluentform/editor_init',
+            'Use fluentform/editor_init instead of fluent_editor_init.'
+        );
+
+        $this->app->doAction('fluentform/editor_init', $components);
 
         $editorComponents = $components->sort()->toArray();
-        $editorComponents = apply_filters('fluent_editor_components', $editorComponents, $formId);
 
-        $countries = $this->app->load($this->app->appPath('Services/FormBuilder/CountryNames.php'));
+        $editorComponents = apply_filters_deprecated(
+            'fluent_editor_components',
+            [
+                $editorComponents,
+                $formId
+            ],
+            FLUENTFORM_FRAMEWORK_UPGRADE,
+            'fluentform/editor_components',
+            'Use fluentform/editor_components instead of fluent_editor_components.'
+        );
+
+        $editorComponents = apply_filters('fluentform/editor_components', $editorComponents, $formId);
 
         wp_send_json_success([
-            'countries'           => $countries,
+            'countries'           => getFluentFormCountryList(),
             'components'          => $editorComponents,
             'disabled_components' => $this->getDisabledComponents(),
         ]);
@@ -226,7 +279,7 @@ class Component
                 'disabled'    => true,
                 'title'       => __('Action Hook', 'fluentform'),
                 'description' => __('Action Hook is not available with the free version. Please upgrade to pro to get all the advanced features.', 'fluentform'),
-                'image'       => $this->app->publicUrl('img/pro-fields/Action Hook.png'),
+                'image'       => fluentformMix('img/pro-fields/action-hook.png'),
                 'video'       => '',
             ],
             'form_step' => [
@@ -257,35 +310,35 @@ class Component
                 'disabled'    => true,
                 'title'       => __('Chained Select Field', 'fluentform'),
                 'description' => __('Chained Select Field is not available with the free version. Please upgrade to pro to get all the advanced features.', 'fluentform'),
-                'image'       => $this->app->publicUrl('img/pro-fields/Chained Select Field.png'),
+                'image'       => fluentformMix('img/pro-fields/chained-select-field.png'),
                 'video'       => '',
             ];
             $disabled['phone'] = [
                 'disabled'    => true,
                 'title'       => 'Phone Field',
                 'description' => __('Phone Field is not available with the free version. Please upgrade to pro to get all the advanced features.', 'fluentform'),
-                'image'       => $this->app->publicUrl('img/pro-fields/Phone Field.png'),
+                'image'       => fluentformMix('img/pro-fields/phone-field.png'),
                 'video'       => '',
             ];
             $disabled['rich_text_input'] = [
                 'disabled'    => true,
                 'title'       => __('Rich Text Input', 'fluentform'),
                 'description' => __('Rich Text Input is not available with the free version. Please upgrade to pro to get all the advanced features.', 'fluentform'),
-                'image'       => $this->app->publicUrl('img/pro-fields/Rich Text Input.png'),
+                'image'       => fluentformMix('img/pro-fields/rich-text-input.png'),
                 'video'       => '',
             ];
             $disabled['save_progress_button'] = [
                 'disabled'    => true,
                 'title'       => __('Save & Resume', 'fluentform'),
                 'description' => __('Save & Resume is not available with the free version. Please upgrade to pro to get all the advanced features.', 'fluentform'),
-                'image'       => $this->app->publicUrl('img/pro-fields/Save Progress Button.png'),
+                'image'       => fluentformMix('img/pro-fields/save-progress-button.png'),
                 'video'       => '',
             ];
             $disabled['cpt_selection'] = [
                 'disabled'    => true,
                 'title'       => __('Post/CPT Selection', 'fluentform'),
                 'description' => __('Post/CPT Selection is not available with the free version. Please upgrade to pro to get all the advanced features.', 'fluentform'),
-                'image'       => $this->app->publicUrl('img/pro-fields/Post_CPT Selection.png'),
+                'image'       => fluentformMix('img/pro-fields/post-cpt-selection.png'),
                 'video'       => '',
             ];
             $disabled['quiz_score'] = [
@@ -299,7 +352,7 @@ class Component
                 'disabled'    => true,
                 'title'       => __('Net Promoter Score', 'fluentform'),
                 'description' => __('Net Promoter Score is not available with the free version. Please upgrade to pro to get all the advanced features.', 'fluentform'),
-                'image'       => $this->app->publicUrl('img/pro-fields/Net Promoter Score.png'),
+                'image'       => fluentformMix('img/pro-fields/net-promoter-score.png'),
                 'video'       => '',
             ];
             $disabled['repeater_field'] = [
@@ -320,7 +373,7 @@ class Component
                 'disabled'    => true,
                 'title'       => __('Color Picker', 'fluentform'),
                 'description' => __('Color Picker is not available with the free version. Please upgrade to pro to get all the advanced features.', 'fluentform'),
-                'image'       => $this->app->publicUrl('img/pro-fields/Color Picker.png'),
+                'image'       => fluentformMix('img/pro-fields/color-picker.png'),
                 'video'       => '',
             ];
             $disabled['multi_payment_component'] = [
@@ -328,7 +381,7 @@ class Component
                 'is_payment'  => true,
                 'title'       => __('Payment Field', 'fluentform'),
                 'description' => __('Payment Field is not available with the free version. Please upgrade to pro to get all the advanced features.', 'fluentform'),
-                'image'       => $this->app->publicUrl('img/pro-fields/Payment Field.png'),
+                'image'       => fluentformMix('img/pro-fields/payment-field.png'),
                 'video'       => '',
             ];
             $disabled['custom_payment_component'] = [
@@ -336,7 +389,7 @@ class Component
                 'is_payment'  => true,
                 'title'       => 'Custom Payment Amount',
                 'description' => __('Custom Payment Amount is not available with the free version. Please upgrade to pro to get all the advanced features.', 'fluentform'),
-                'image'       => $this->app->publicUrl('img/pro-fields/Custom Payment Amount.png'),
+                'image'       => fluentformMix('img/pro-fields/custom-payment-amount.png'),
                 'video'       => '',
             ];
             $disabled['subscription_payment_component'] = [
@@ -344,7 +397,7 @@ class Component
                 'is_payment'  => true,
                 'title'       => __('Subscription Field', 'fluentform'),
                 'description' => __('Subscription Field is not available with the free version. Please upgrade to pro to get all the advanced features.', 'fluentform'),
-                'image'       => $this->app->publicUrl('img/pro-fields/Subscription Field.png'),
+                'image'       => fluentformMix('img/pro-fields/subscription-field.png'),
                 'video'       => '',
             ];
             $disabled['item_quantity_component'] = [
@@ -352,7 +405,7 @@ class Component
                 'is_payment'  => true,
                 'title'       => __('Item Quantity', 'fluentform'),
                 'description' => __('Item Quantity is not available with the free version. Please upgrade to pro to get all the advanced features.', 'fluentform'),
-                'image'       => $this->app->publicUrl('img/pro-fields/Item Quantity.png'),
+                'image'       => fluentformMix('img/pro-fields/item-quantity.png'),
                 'video'       => '',
             ];
             $disabled['payment_method'] = [
@@ -360,7 +413,7 @@ class Component
                 'is_payment'  => true,
                 'title'       => __('Payment Method', 'fluentform'),
                 'description' => __('Payment Method is not available with the free version. Please upgrade to pro to get all the advanced features.', 'fluentform'),
-                'image'       => $this->app->publicUrl('img/pro-fields/Payment Method.png'),
+                'image'       => fluentformMix('img/pro-fields/payment-method.png'),
                 'video'       => '',
             ];
             $disabled['payment_summary_component'] = [
@@ -368,18 +421,28 @@ class Component
                 'is_payment'  => true,
                 'title'       => __('Payment Summary', 'fluentform'),
                 'description' => __('Payment Summary is not available with the free version. Please upgrade to pro to get all the advanced features.', 'fluentform'),
-                'image'       => $this->app->publicUrl('img/pro-fields/Payment Summary.png'),
+                'image'       => fluentformMix('img/pro-fields/payment-summary.png'),
                 'video'       => '',
             ];
             $disabled['payment_coupon'] = [
                 'disabled'    => true,
                 'title'       => __('Coupon', 'fluentform'),
                 'description' => __('Coupon is not available with the free version. Please upgrade to pro to get all the advanced features.', 'fluentform'),
-                'image'       => $this->app->publicUrl('img/pro-fields/Coupon.png'),
+                'image'       => fluentformMix('img/pro-fields/coupon.png'),
                 'video'       => '',
             ];
         }
-        return $this->app->applyFilters('fluentform_disabled_components', $disabled);
+
+        $disabled = apply_filters_deprecated(
+            'fluentform_disabled_components',
+            [
+                $disabled
+            ],
+            FLUENTFORM_FRAMEWORK_UPGRADE,
+            'fluentform/disabled_components',
+            'Use fluentform/disabled_components instead of fluentform_disabled_components.'
+        );
+        return $this->app->applyFilters('fluentform/disabled_components', $disabled);
     }
 
     /**
@@ -396,6 +459,7 @@ class Component
     }
 
     /**
+     * @deprecated Use \FluentForm\App\Services\Form\FormService::shortcodes
      * Get all available shortcodes for editor
      *
      * @return void
@@ -419,14 +483,27 @@ class Component
         add_action('wp_enqueue_scripts', [$this, 'registerScripts'], 9);
 
         $this->app->addShortCode('fluentform', function ($atts, $content) {
-            $shortcodeDefaults = apply_filters('fluentform_shortcode_defaults', [
+            $data = [
                 'id'                 => null,
                 'title'              => null,
                 'css_classes'        => '',
                 'permission'         => '',
                 'type'               => 'classic',
-                'permission_message' => __('Sorry, You do not have permission to view this form', 'fluentform'),
-            ], $atts);
+                'permission_message' => __('Sorry, You do not have permission to view this form', 'fluentform')
+            ];
+    
+            $data = apply_filters_deprecated(
+                'fluentform_shortcode_defaults',
+                [
+                    $data,
+                    $atts
+                ],
+                FLUENTFORM_FRAMEWORK_UPGRADE,
+                'fluentform/shortcode_defaults',
+                'Use fluentform/shortcode_defaults instead of fluentform_shortcode_defaults.'
+            );
+
+            $shortcodeDefaults = apply_filters('fluentform/shortcode_defaults', $data, $atts);
 
             $atts = shortcode_atts($shortcodeDefaults, $atts);
 
@@ -434,17 +511,33 @@ class Component
         });
 
         $this->app->addShortCode('fluentform_info', function ($atts) {
-            $shortcodeDefaults = apply_filters('fluentform_info_shortcode_defaults', [
-                'id'                 => null, // This is the form id
-                'info'               => 'submission_count', // submission_count | created_at | updated_at | payment_total
-                'status'             => 'all', // get submission cound of a particular entry status favourites | unread | read
-                'with_trashed'       => 'no', // yes | no
-                'substract_from'     => 0, // [fluentform_info id="2" info="submission_count" substract_from="20"]
-                'hide_on_zero'       => 'no',
-                'payment_status'     => 'all', // it can be all / specific payment status
-                'currency_formatted' => 'yes',
-                'date_format'        => '',
-            ], $atts);
+            $data = [
+                [
+                    'id'                 => null, // This is the form id
+                    'info'               => 'submission_count', // submission_count | created_at | updated_at | payment_total
+                    'status'             => 'all', // get submission cound of a particular entry status favourites | unread | read
+                    'with_trashed'       => 'no', // yes | no
+                    'substract_from'     => 0, // [fluentform_info id="2" info="submission_count" substract_from="20"]
+                    'hide_on_zero'       => 'no',
+                    'payment_status'     => 'all', // it can be all / specific payment status
+                    'currency_formatted' => 'yes',
+                    'date_format'        => '',
+                ]
+            ];
+    
+            $data = apply_filters_deprecated(
+                'fluentform_info_shortcode_defaults',
+                [
+                    $data,
+                    $atts
+                ],
+                FLUENTFORM_FRAMEWORK_UPGRADE,
+                'fluentform/info_shortcode_defaults',
+                'Use fluentform/info_shortcode_defaults instead of fluentform_info_shortcode_defaults.'
+            );
+
+
+            $shortcodeDefaults = apply_filters('fluentform/info_shortcode_defaults', $data, $atts);
 
             $atts = shortcode_atts($shortcodeDefaults, $atts);
             $formId = $atts['id'];
@@ -604,7 +697,19 @@ class Component
         if (is_feed()) {
             global $post;
             $feedText = sprintf(__('The form can be filled in the actual <a href="%s">website url</a>.', 'fluentform'), get_permalink($post));
-            $feedText = apply_filters('fluentform_shortcode_feed_text', $feedText, $form);
+    
+            $feedText = apply_filters_deprecated(
+                'fluentform_shortcode_feed_text',
+                [
+                    $feedText,
+                    $form
+                ],
+                FLUENTFORM_FRAMEWORK_UPGRADE,
+                'fluentform/shortcode_feed_text',
+                'Use fluentform/shortcode_feed_text instead of fluentform_shortcode_feed_text.'
+            );
+
+            $feedText = apply_filters('fluentform/shortcode_feed_text', $feedText, $form);
             return $feedText;
         }
 
@@ -625,14 +730,36 @@ class Component
         }
 
         $form->settings = json_decode($formSettings->value, true);
-        $form = $this->app->applyFilters('fluentform_rendering_form', $form);
+    
+        $form = apply_filters_deprecated(
+            'fluentform_rendering_form',
+            [
+                $form
+            ],
+            FLUENTFORM_FRAMEWORK_UPGRADE,
+            'fluentform/rendering_form',
+            'Use fluentform/rendering_form instead of fluentform_rendering_form.'
+        );
+
+        $form = $this->app->applyFilters('fluentform/rendering_form', $form);
 
         $isRenderable = [
             'status'  => true,
             'message' => '',
         ];
+    
+        $isRenderable = apply_filters_deprecated(
+            'fluentform_is_form_renderable',
+            [
+                $isRenderable,
+                $form
+            ],
+            FLUENTFORM_FRAMEWORK_UPGRADE,
+            'fluentform/is_form_renderable',
+            'Use fluentform/is_form_renderable instead of fluentform_is_form_renderable.'
+        );
 
-        $isRenderable = $this->app->applyFilters('fluentform_is_form_renderable', $isRenderable, $form);
+        $isRenderable = $this->app->applyFilters('fluentform/is_form_renderable', $isRenderable, $form);
 
         if (is_array($isRenderable) && !$isRenderable['status']) {
             return "<div id='ff_form_{$form->id}' class='ff_form_not_render'>{$isRenderable['message']}</div>";
@@ -661,7 +788,19 @@ class Component
         }
 
         wp_enqueue_style('fluent-form-styles');
-        if (apply_filters('fluentform_load_default_public', true, $form)) {
+
+        $loadStyle = apply_filters_deprecated(
+            'fluentform_load_default_public',
+            [
+                true,
+                $form
+            ],
+            FLUENTFORM_FRAMEWORK_UPGRADE,
+            'fluentform/load_default_public',
+            'Use fluentform/load_default_public instead of fluentform_load_default_public.'
+        );
+
+        if (apply_filters('fluentform/load_default_public', $loadStyle, $form)) {
             wp_enqueue_style('fluentform-public-default');
         }
         /*
@@ -671,13 +810,25 @@ class Component
         wp_enqueue_script('fluent-form-submission');
 
         $stepText = __('Step %activeStep% of %totalStep% - %stepTitle%', 'fluentform');
-        $stepText = apply_filters('fluentform_step_string', $stepText);
-        $vars = apply_filters('fluentform_global_form_vars', [
+    
+        $stepText = apply_filters_deprecated(
+            'fluentform_step_string',
+            [
+                $stepText
+            ],
+            FLUENTFORM_FRAMEWORK_UPGRADE,
+            'fluentform/step_string',
+            'Use fluentform/step_string instead of fluentform_step_string.'
+        );
+
+        $stepText = apply_filters('fluentform/step_string', $stepText);
+
+        $data = [
             'ajaxUrl'               => admin_url('admin-ajax.php'),
             'forms'                 => [],
             'step_text'             => $stepText,
             'is_rtl'                => is_rtl(),
-            'date_i18n'             => $this->getDatei18n(),
+            'date_i18n'             => self::getDatei18n(),
             'pro_version'           => (defined('FLUENTFORMPRO_VERSION')) ? FLUENTFORMPRO_VERSION : false,
             'fluentform_version'    => FLUENTFORM_VERSION,
             'force_init'            => false,
@@ -695,7 +846,19 @@ class Component
             'input_mask_vars' => [
                 'clearIfNotMatch' => false,
             ],
-        ]);
+       ];
+    
+        $data = apply_filters_deprecated(
+            'fluentform_global_form_vars',
+            [
+                $data
+            ],
+            FLUENTFORM_FRAMEWORK_UPGRADE,
+            'fluentform/global_form_vars',
+            'Use fluentform/global_form_vars instead of fluentform_global_form_vars.'
+        );
+
+        $vars = apply_filters('fluentform/global_form_vars', $data);
 
         wp_localize_script('fluent-form-submission', 'fluentFormVars', $vars);
 
@@ -722,7 +885,16 @@ class Component
         $form_vars = apply_filters('fluentform/form_vars_for_JS', $form_vars, $form);
 
         if ($form->has_payment) {
-            do_action('fluentform_rendering_payment_form', $form);
+            do_action_deprecated(
+                'fluentform_rendering_payment_form',
+                [
+                    $form
+                ],
+                FLUENTFORM_FRAMEWORK_UPGRADE,
+                'fluentform/rendering_payment_form',
+                'Use fluentform/rendering_payment_form instead of fluentform_rendering_payment_form.'
+            );
+            do_action('fluentform/rendering_payment_form', $form);
         }
 
         $otherScripts = '';
@@ -749,9 +921,19 @@ class Component
         $this->addInlineVars();
         $otherScripts .= ob_get_clean();
 
-        if (!apply_filters('fluentform-disabled_analytics', false)) {
+        $disableAnalytics = apply_filters_deprecated(
+            'fluentform-disabled_analytics',
+            [
+                false
+            ],
+            FLUENTFORM_FRAMEWORK_UPGRADE,
+            'fluentform/disabled_analytics',
+            'Use fluentform/disabled_analytics instead of fluentform-disabled_analytics.'
+        );
+
+        if (!$this->app->applyFilters('fluentform/disabled_analytics', $disableAnalytics)) {
             if (!Acl::hasAnyFormPermission($form->id)) {
-                (new \FluentForm\App\Modules\Form\Analytics($this->app))->record($form->id);
+                (new \FluentForm\App\Http\Controllers\AnalyticsController())->store($form->id);
             }
         }
 
@@ -777,11 +959,32 @@ class Component
 
         foreach ($patterns as $pattern) {
             // The default value for each pattern will be resolved here.
-            $attrDefaultValues[$pattern] = apply_filters('fluentform_parse_default_value', $pattern, $form);
+            $attrDefaultValues[$pattern] = apply_filters_deprecated(
+                'fluentform_parse_default_value',
+                [
+                    $pattern,
+                    $form
+                ],
+                FLUENTFORM_FRAMEWORK_UPGRADE,
+                'fluentform/parse_default_value',
+                'Use fluentform/parse_default_value instead of fluentform_parse_default_value.'
+            );
+
+            $attrDefaultValues[$pattern] = apply_filters('fluentform/parse_default_value', $attrDefaultValues[$pattern], $form);
         }
 
         // Raising an event so that others can hook into it and modify the default values later.
-        $attrDefaultValues = (array) apply_filters('fluentform_parse_default_values', $attrDefaultValues);
+        $attrDefaultValues = apply_filters_deprecated(
+            'fluentform_parse_default_values',
+            [
+                $attrDefaultValues
+            ],
+            FLUENTFORM_FRAMEWORK_UPGRADE,
+            'fluentform/parse_default_values',
+            'Use fluentform/parse_default_values instead of fluentform_parse_default_values.'
+        );
+
+        $attrDefaultValues = (array) apply_filters('fluentform/parse_default_values', $attrDefaultValues);
 
         if (isset($attrDefaultValues['{payment_total}'])) {
             $attrDefaultValues['{payment_total}'] = '<span class="ff_order_total"></span>';
@@ -799,42 +1002,42 @@ class Component
     public function addRendererActions()
     {
         $actionMappings = [
-            'Select@compile'        => ['fluentform_render_item_select'],
-            'Rating@compile'        => ['fluentform_render_item_ratings'],
-            'Address@compile'       => ['fluentform_render_item_address'],
-            'Name@compile'          => ['fluentform_render_item_input_name'],
-            'TextArea@compile'      => ['fluentform_render_item_textarea'],
-            'DateTime@compile'      => ['fluentform_render_item_input_date'],
-            'Recaptcha@compile'     => ['fluentform_render_item_recaptcha'],
-            'Hcaptcha@compile'      => ['fluentform_render_item_hcaptcha'],
-            'Turnstile@compile'     => ['fluentform_render_item_turnstile'],
-            'Container@compile'     => ['fluentform_render_item_container'],
-            'CustomHtml@compile'    => ['fluentform_render_item_custom_html'],
-            'SectionBreak@compile'  => ['fluentform_render_item_section_break'],
-            'SubmitButton@compile'  => ['fluentform_render_item_submit_button'],
-            'SelectCountry@compile' => ['fluentform_render_item_select_country'],
+            'Select@compile'        => ['fluentform/render_item_select'],
+            'Rating@compile'        => ['fluentform/render_item_ratings'],
+            'Address@compile'       => ['fluentform/render_item_address'],
+            'Name@compile'          => ['fluentform/render_item_input_name'],
+            'TextArea@compile'      => ['fluentform/render_item_textarea'],
+            'DateTime@compile'      => ['fluentform/render_item_input_date'],
+            'Recaptcha@compile'     => ['fluentform/render_item_recaptcha'],
+            'Hcaptcha@compile'      => ['fluentform/render_item_hcaptcha'],
+            'Turnstile@compile'     => ['fluentform/render_item_turnstile'],
+            'Container@compile'     => ['fluentform/render_item_container'],
+            'CustomHtml@compile'    => ['fluentform/render_item_custom_html'],
+            'SectionBreak@compile'  => ['fluentform/render_item_section_break'],
+            'SubmitButton@compile'  => ['fluentform/render_item_submit_button'],
+            'SelectCountry@compile' => ['fluentform/render_item_select_country'],
 
             'TermsAndConditions@compile' => [
-                'fluentform_render_item_terms_and_condition',
-                'fluentform_render_item_gdpr_agreement',
+                'fluentform/render_item_terms_and_condition',
+                'fluentform/render_item_gdpr_agreement',
             ],
 
             'TabularGrid@compile' => [
-                'fluentform_render_item_tabular_grid',
+                'fluentform/render_item_tabular_grid',
             ],
 
             'Checkable@compile' => [
-                'fluentform_render_item_input_radio',
-                'fluentform_render_item_input_checkbox',
+                'fluentform/render_item_input_radio',
+                'fluentform/render_item_input_checkbox',
             ],
 
             'Text@compile' => [
-                'fluentform_render_item_input_url',
-                'fluentform_render_item_input_text',
-                'fluentform_render_item_input_email',
-                'fluentform_render_item_input_number',
-                'fluentform_render_item_input_hidden',
-                'fluentform_render_item_input_password',
+                'fluentform/render_item_input_url',
+                'fluentform/render_item_input_text',
+                'fluentform/render_item_input_email',
+                'fluentform/render_item_input_number',
+                'fluentform/render_item_input_hidden',
+                'fluentform/render_item_input_password',
             ],
         ];
 
@@ -842,7 +1045,7 @@ class Component
         foreach ($actionMappings as $handler => $actions) {
             foreach ($actions as $action) {
                 $this->app->addAction($action, function () use ($path, $handler) {
-                    list($class, $method) = $this->app->parseHandler($path . $handler);
+                    list($class, $method) = $this->app->parseHookHandler($path . $handler);
                     call_user_func_array([$class, $method], func_get_args());
                 }, 10, 2);
             }
@@ -856,7 +1059,7 @@ class Component
      */
     public function addFluentFormDefaultValueParser()
     {
-        $this->app->addFilter('fluentform_parse_default_value', function ($value, $form) {
+        $this->app->addFilter('fluentform/parse_default_value', function ($value, $form) {
             return EditorShortcodeParser::filter($value, $form);
         }, 10, 2);
     }
@@ -868,7 +1071,7 @@ class Component
      */
     public function addIsRenderableFilter()
     {
-        $this->app->addFilter('fluentform_is_form_renderable', function ($isRenderable, $form) {
+        $this->app->addFilter('fluentform/is_form_renderable', function ($isRenderable, $form) {
             $checkables = ['limitNumberOfEntries', 'scheduleForm', 'requireLogin'];
 
             foreach ($form->settings['restrictions'] as $key => $restrictions) {
@@ -894,9 +1097,11 @@ class Component
      */
     private function limitNumberOfEntries($restrictions, $form, &$isRenderable)
     {
+
         if (!$restrictions['enabled'] || !isset($restrictions['period']) || !isset($restrictions['numberOfEntries'])) {
             return true;
         }
+
 
         $col = 'created_at';
         $period = $restrictions['period'];
@@ -914,17 +1119,17 @@ class Component
             $year = "YEAR(`{$col}`) = YEAR(NOW())";
             $month = "MONTH(`{$col}`) = MONTH(NOW())";
             $day = "DAY(`{$col}`) = DAY(NOW())";
-            $query->where(wpFluent()->raw("{$year} AND {$month} AND {$day}"));
+            $query->whereRaw(wpFluent()->raw("{$year} AND {$month} AND {$day}"));
         } elseif ('week' == $period) {
-            $query->where(
+            $query->whereRaw(
                 wpFluent()->raw("YEARWEEK(`{$col}`, 1) = YEARWEEK(CURDATE(), 1)")
             );
         } elseif ('month' == $period) {
             $year = "YEAR(`{$col}`) = YEAR(NOW())";
             $month = "MONTH(`{$col}`) = MONTH(NOW())";
-            $query->where(wpFluent()->raw("{$year} AND {$month}"));
+            $query->whereRaw(wpFluent()->raw("{$year} AND {$month}"));
         } elseif ('year' == $period) {
-            $query->where(wpFluent()->raw("YEAR(`{$col}`) = YEAR(NOW())"));
+            $query->whereRaw(wpFluent()->raw("YEAR(`{$col}`) = YEAR(NOW())"));
         } elseif ('per_user_ip' == $period) {
             $ip = $this->app->request->getIp();
             $query->where('ip', $ip);
@@ -1175,8 +1380,8 @@ class Component
 
     public function registerInputSanitizers()
     {
-        add_filter('fluentform_input_data_input_number', [$this, 'getNumericInputValue'], 10, 2);
-        add_filter('fluentform_input_data_custom_payment_component', [$this, 'getNumericInputValue'], 10, 2);
+        add_filter('fluentform/input_data_input_number', [$this, 'getNumericInputValue'], 10, 2);
+        add_filter('fluentform/input_data_custom_payment_component', [$this, 'getNumericInputValue'], 10, 2);
     }
 
     public function getNumericInputValue($value, $field)

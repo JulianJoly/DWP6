@@ -17,8 +17,19 @@ class Checkable extends BaseComponent
     public function compile($data, $form)
     {
         $elementName = $data['element'];
+    
+        $data = apply_filters_deprecated(
+            'fluentform_rendering_field_data_' . $elementName,
+            [
+                $data,
+                $form
+            ],
+            FLUENTFORM_FRAMEWORK_UPGRADE,
+            'fluentform/rendering_field_data_' . $elementName,
+            'Use fluentform/rendering_field_data_' . $elementName . ' instead of fluentform_rendering_field_data_' . $elementName
+        );
 
-        $data = apply_filters('fluentform_rendering_field_data_' . $elementName, $data, $form);
+        $data = apply_filters('fluentform/rendering_field_data_' . $elementName, $data, $form);
 
         $data['attributes']['class'] = trim(
             'ff-el-form-check-input ' .
@@ -111,7 +122,7 @@ class Checkable extends BaseComponent
                 $ariaRequired = 'true';
             }
 
-            $elMarkup .= "<label class='ff-el-form-check-label' for={$id}><input {$atts} id='{$id}' aria-label='{$ariaLabel}' aria-invalid='false' aria-required={$ariaRequired}> <span>" . $label . '</span></label>';
+            $elMarkup .= "<label class='ff-el-form-check-label' for={$id}><input {$atts} id='{$id}' aria-label='{$ariaLabel}' aria-invalid='false' aria-required={$ariaRequired}> <span class='ff_span'>" . $label . '</span></label>';
             $elMarkup .= '</div>';
         }
 
@@ -120,7 +131,19 @@ class Checkable extends BaseComponent
         }
 
         $html = $this->buildElementMarkup($elMarkup, $data, $form);
+    
+        $data = apply_filters_deprecated(
+            'fluentform_rendering_field_html_' . $elementName,
+            [
+                $html,
+                $data,
+                $form
+            ],
+            FLUENTFORM_FRAMEWORK_UPGRADE,
+            'fluentform/rendering_field_html_' . $elementName,
+            'Use fluentform/rendering_field_html_' . $elementName . ' instead of fluentform_nonce_verify.'
+        );
 
-        $this->printContent('fluentform_rendering_field_html_' . $elementName, $html, $data, $form);
+        $this->printContent('fluentform/rendering_field_html_' . $elementName, $html, $data, $form);
     }
 }
